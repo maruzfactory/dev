@@ -1,0 +1,58 @@
+・完全停止
+[ ctrl ] + C
+
+・一時停止
+[ctrl] + Z
+
+・終了
+exit
+
+・WSL ディレクトリを見る
+\\wsl$
+
+・WSLから見たWindows Cドライブ
+/mnt/c
+
+・アップデート （-y ※バージョン）
+sudo apt update -y
+
+・アップグレート （-y ※バージョント）
+sudo apt upgrade -y
+
+・パッケージインストール/アンインストール
+sudo apt install xxx
+sudo apt remove xxx
+
+・日本語化
+sudo apt install language-pack-ja
+sudo update-locale LANG=ja_JP.UTF-8
+
+・日本語化マニュアル
+sudo apt install manpages-ja manpages-ja-dev
+・マニュアル確認
+man ls
+
+・タイムゾーン
+sudo dpkg-reconfigure tzdata
+
+・Xfce4
+sudo apt install xubuntu-desktop
+sudo apt-get install xfce4-terminal
+sudo apt-get install xfce4
+export DISPLAY=localhost:0.0
+startxfce4
+
+・GCC
+sudo apt install build-essential
+
+・decode
+cat ファイル名 | base64 -d
+uudecode　xxx.txt | 
+
+///pdfcrack///
+pdfcrack -f filename.pdf
+ctrl + C = 一時保存
+pdfcrack -f filename.pdf -l savedstate.sav
+
+///fcrackzip///
+fcrackzip -u -c Aa1 -l 1-4 filename.zip
