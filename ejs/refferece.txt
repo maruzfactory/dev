@@ -1,0 +1,8 @@
+EJSで作業効率化
+https://qiita.com/Coco__syu/items/a1ed7aa7c97fc00ce8d8
+
+【数秒で簡単】ejsでもルート相対パスでインクルードする方法
+https://qiita.com/heppokofrontend/items/e98411ea6c96d8d67aea
+8
+EJSとJSONファイルを使ってパンくずリストをパーツ化する
+https://qiita.com/shuhosaka/items/b07b5144a175af2a60f8
