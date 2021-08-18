@@ -18,3 +18,12 @@ https://qiita.com/Shin/items/ef504b2fee00789e2f4b
 
 【GAS】Googleフォームの投稿をHangouts Chatへ送信する方法
 https://www.log-stocker.com/gas/682/
+
+hangout chat botでスプレッドシートのデータを取得・表示するbotを作る（Google Apps Script使用）
+https://5log.hateblo.jp/entry/2018/12/15/121549
+---
+GoogleAppsScriptのチートシート
+https://qiita.com/sahksas/items/e08996327b18df27b27e
+
+スプレッドシートをPDFに変換して、メールに添付して送る。
+https://jetb.co.jp/8759
