@@ -1,9 +1,7 @@
 function myFunction() {
     // // スプレッドシートを取得
     var sheet = SpreadsheetApp.getActive();
-    var sheetName = sheet.getSheetByName("シート名");
-
-    var url = 'Webhook'; // WebhookのURLを入力
+    var sheetName = sheet.getSheetByName("***"); // シート名
 
     var row = 1; // 開始行
     var column = 1; // 開始列
@@ -13,8 +11,10 @@ function myFunction() {
     var numColumns = lastCol -column + 1; // データ範囲の列数
     var cellData = sheetName.getRange(row, column,numRows, numColumns).getValues();
     for(i=0; i < cellData.length; i++)
+    var text = '時間：'+cellData[i].join("\n")+'\n'+ 'よろしくおねがいします◎';
 
-    var text = '時間：送信したい文字列'+'\n'+cellData[i]+'\n'+ 'よろしくおねがいします◎';
+    // Webhookを設定
+    var url = '******';
 
     // 送信内容を生成
     var message = {'text' : text}
