@@ -3,3 +3,6 @@ $csv | Where-Object {$_.駅名 -match '.*信濃.*'} | Export-Csv ./result.csv -E
 
 #参照　https://hebodj.net/2021/03/27/powershellによるcsvファイルからのデータ抽出/
 #参照　https://miyalog.info/technology/1357/
+
+#列抽出
+import-csv test.csv  -encoding Default | select "氏名","年齢" | export-csv out.csv -encoding Default　-NoTypeInformation
