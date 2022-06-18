@@ -8,4 +8,5 @@ rem ディレクトリに含まれるファイルを含めてa.txtに保存す�
 tree /f >a.txt
 
 
-
+rem バッチファイルでPowershellを呼び出す。
+powershell -NoProfile -ExecutionPolicy Unrestricted .\***.ps1
