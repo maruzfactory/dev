@@ -1,0 +1,2 @@
+rem バックアップ
+xcopy "moto" "saki" /d /e /c /y /r
