@@ -1,0 +1,34 @@
+@echo off
+
+rem 変換元フォルダ
+set SOURCE_FOLDER=A:\
+
+rem 変換先ファイル名
+set OUTPUT_FILE=all.tif
+
+rem Ghostscriptのパス
+set GHOSTSCRIPT_PATH="C:\Program Files\gs\gs9.55.0\bin"
+
+rem 一時フォルダ
+set TEMP_FOLDER=%TEMP%\gsprint
+
+rem 一時フォルダの削除
+if exist "%TEMP_FOLDER%" rd /s /q "%TEMP_FOLDER%"
+
+rem 一時フォルダの作成
+mkdir "%TEMP_FOLDER%"
+
+rem PDFファイルをTIFFファイルに変換
+for %%F in ("%SOURCE_FOLDER%\*.pdf") do (
+  "%GHOSTSCRIPT_PATH%\gswin64c.exe" -dQUIET -dNOPAUSE -sDEVICE=tiffgray -r300 -sOutputFile="%TEMP_FOLDER%\%%~nF.tif" "%%F"
+)
+
+rem 一時フォルダのTIFFファイルを結合
+"%GHOSTSCRIPT_PATH%\gswin64c.exe" -dQUIET -dNOPAUSE -sDEVICE=tiffgray -sOutputFile="%OUTPUT_FILE%" "%TEMP_FOLDER%\*.tif"
+
+rem 一時フォルダの削除
+rd /s /q "%TEMP_FOLDER%"
+
+echo 変換完了
+
+pause
