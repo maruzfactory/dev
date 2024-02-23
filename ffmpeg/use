@@ -1,3 +1,4 @@
+#参照　https://ffmpeg.org/ffmpeg.html
 
 #m3u8 to ts
 ffmpeg -protocol_whitelist file,http,https,tcp,tls,crypto -i input.m3u8 -movflags faststart -c copy output.ts
@@ -5,3 +6,10 @@ ffmpeg -protocol_whitelist file,http,https,tcp,tls,crypto -i input.m3u8 -movflag
 #画像抜出
 ffmpeg -i a.mkv -ss 0 -t 30 -f image2 -vcodec mjpeg -qscale 1 -qmin 1 -qmax 1 -r 30 %06d.jpg
 
+Youtube
+youtube-dl URL -o "\%%(title)s-%%(id)s.%%(ext)s"
+
+lossless
+ffmpeg -i 27.mts -c:v libx264 -crf 18 -s 1920x1080 -aspect 16:9  -r 29.97 -vf format=yuv420p 27.mp4
+
+ffmpeg -i 27.mts -vcodec copy -acodec libfdk_aac -qp 0 -s 1920x1080 -aspect 16:9  -r 29.97 -vf format=yuv420p 27.mp4
