@@ -1,0 +1,2 @@
+## ffmpeg hls to mp4
+ffmpeg -protocol_whitelist file,http,https,tcp,tls -i input.m3u8 -movflags faststart -c copy output.mp4
