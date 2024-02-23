@@ -9,6 +9,9 @@ ffmpeg -protocol_whitelist file,http,https,tcp,tls,crypto -i input.m3u8 -movflag
 # https://storage.googleapis.com/vr180-creator/download/VR180_Creator_windows_4.0.0.zip　https://t.co/pZtjKSAnSN
 ffmpeg -i input.mp4 -vcodec libx264 -metadata frame-packing=3 output.mp4
 
+# https://blog.interstellar.co.jp/2022/06/21/converting-vr180-videos-to-2d-videos-with-ffmpeg/
+
+
 #画像抜出
 ffmpeg -i a.mkv -ss 0 -t 30 -f image2 -vcodec mjpeg -qscale 1 -qmin 1 -qmax 1 -r 30 %06d.jpg
 
