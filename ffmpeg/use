@@ -5,6 +5,8 @@ ffmpeg -protocol_whitelist file,http,https,tcp,tls,crypto -i input.m3u8 -movflag
 
 #3D　
 ##参照 https://support.google.com/youtube/answer/7278886?hl=ja
+# https://t.co/pZtjKSAnSN
+# https://storage.googleapis.com/vr180-creator/download/VR180_Creator_windows_4.0.0.zip
 ffmpeg -i input.mp4 -vcodec libx264 -metadata frame-packing=3 output.mp4
 
 #画像抜出
