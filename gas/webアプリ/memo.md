@@ -1,9 +1,3 @@
-		
-	Test Deploy	https://script.google.com/macros/s/AKfycbyWn_ZIZa7d8aSLHaljs6crGWliHkTS9jlGS-3Tw3u-/dev
-		
-		
-		
-		
 	https://qiita.com/dadadaiiiiiii/items/beb33b838d0516cade05	GASでWebアプリ作るときのTips #TypeScript - Qiita
 		
 		
