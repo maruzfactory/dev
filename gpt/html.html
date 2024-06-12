@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script>
+      // 「data」シートの情報を取得してテーブルに表示する関数
+      function displayData() {
+        google.script.run.withSuccessHandler(function(data) {
+          var table = document.getElementById('data-table');
+          table.innerHTML = '';
+          data.forEach(function(row) {
+            var tr = document.createElement('tr');
+            row.forEach(function(cell) {
+              var td = document.createElement('td');
+              td.textContent = cell;
+              tr.appendChild(td);
+            });
+            var editButton = document.createElement('button');
+            editButton.textContent = '編集';
+            editButton.onclick = function() {
+              showEditForm(row[0]); // 管理番号を渡す
+            };
+            tr.appendChild(editButton);
+            table.appendChild(tr);
+          });
+        }).getData();
+      }
+
+      // 依頼部署によってフィルタリングされた情報を取得してテーブルに表示する関数
+      function displayFilteredData() {
+        var department = document.getElementById('department').value;
+        google.script.run.withSuccessHandler(function(filteredData) {
+          var table = document.getElementById('filtered-data-table');
+          table.innerHTML = '';
+          filteredData.forEach(function(row) {
+            var tr = document.createElement('tr');
+            row.forEach(function(cell) {
+              var td = document.createElement('td');
+              td.textContent = cell;
+              tr.appendChild(td);
+            });
+            var editButton = document.createElement('button');
+            editButton.textContent = '編集';
+            editButton.onclick = function() {
+              showEditForm(row[0]); // 管理番号を渡す
+            };
+            tr.appendChild(editButton);
+            table.appendChild(tr);
+          });
+        }).getDataByDepartment(department);
+      }
+
+      // 編集フォームを表示する関数
+      function showEditForm(row) {
+        var form = document.getElementById('edit-form');
+        form.style.display = 'block';
+        form.elements['row'].value = row;
+      }
+
+      // データの編集を保存する関数
+      function saveEdit() {
+        var row = document.getElementById('row').value;
+        var updatedData = [
+          document.getElementById('department-edit').value,
+          document.getElementById('employee-edit').value,
+          document.getElementById('completion-date-edit').value,
+          document.getElementById('last-updated-by-edit').value
+        ];
+        google.script.run.updateData(row, updatedData);
+        document.getElementById('edit-form').style.display = 'none';
+        displayData(); // データを再表示する
+      }
+
+      // ページ読み込み時に実行する関数
+      window.onload = function() {
+        displayData();
+        // マスターシートから部署名を取得して選択肢を生成
+        google.script.run.withSuccessHandler(function(departments) {
+          var select = document.getElementById('department');
+          departments.forEach(function(department) {
+            var option = document.createElement('option');
+            option.value = department;
+            option.textContent = department;
+            select.appendChild(option);
+          });
+        }).getDepartments();
+      };
+    </script>
+  </head>
+  <body>
+    <h1>データ表示</h1>
+    <table id="data-table" border="1"></table>
+
+    <h2>依頼部署でフィルタリング</h2>
+    <select id="department">
+      <!-- マスターシートから部署名を取得して選択肢を生成 -->
+    </select>
+    <button onclick="displayFilteredData()">フィルタリング</button>
+    <table id="filtered-data-table" border="1"></table>
+
+    <h2>データ編集</h2>
+    <form id="edit-form" style="display: none;">
+      <input type="hidden" id="row">
+      <label for="department-edit">作業部署：</label>
+      <select id="department-edit">
+        <!-- マスターシートから部署名を取得して選択肢を生成 -->
+      </select><br>
+      <label for="employee-edit">作業者：</label>
+      <select id="employee-edit">
+        <!-- マスターシートから社員名を取得して選択肢を生成 -->
+      </select><br>
+      <label for="completion-date-edit">作業完了日：</label>
+      <input type="text" id="completion-date-edit"><br>
+      <label for="last-updated-by-edit">最終更新者：</label>
+      <input type="text" id="last-updated-by-edit"><br>
+      <button type="button" onclick="saveEdit()">保存</button>
+    </form>
+  </body>
+</html>
