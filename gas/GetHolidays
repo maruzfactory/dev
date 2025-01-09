@@ -1,0 +1,26 @@
+function setHolidays() {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var holidays = getHolidays(); // 祝日データを取得する関数
+
+  // A列に日付、B列に祝日名を書き込む
+  for (var i = 0; i < holidays.length; i++) {
+    sheet.appendRow([holidays[i].date, holidays[i].name]);
+  }
+}
+
+function getHolidays() {
+  // 国民の祝日APIを利用した例
+  var url = "https://api.national-holidays.jp/2025"; // APIのURL　参照元：https://national-holidays.jp/
+  var response = UrlFetchApp.fetch(url);
+  var data = JSON.parse(response.getContentText());
+
+  // APIのレスポンスから必要な情報を抽出
+  var holidays = [];
+  for (var i = 0; i < data.length; i++) {
+    holidays.push({
+      date: data[i].date,
+      name: data[i].name
+    });
+  }
+  return holidays;
+}
