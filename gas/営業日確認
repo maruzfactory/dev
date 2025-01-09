@@ -1,0 +1,43 @@
+// https://chatgpt.com/share/677ffc9a-8638-8001-90d5-42721f738fab
+function onEdit(e) {
+  const sheetName = "data"; // 操作対象のシート名
+  const holidaySheetName = "休日"; // 祝日が記載されているシート名
+
+  const range = e.range; // 編集された範囲
+  const sheet = range.getSheet();
+  if (sheet.getName() !== sheetName) return;
+
+  const col = range.getColumn(); // 編集された列
+  const row = range.getRow(); // 編集された行
+
+  if (col === 4) { // チェックボックス列 (D列)
+    const checkboxValue = range.getValue();
+    if (checkboxValue) { // チェックが入った場合
+      const receptionDate = sheet.getRange(row, 1).getValue(); // A列の受付日を取得
+      if (receptionDate) {
+        const nextBusinessDay = calculateNextBusinessDay(receptionDate, holidaySheetName);
+        sheet.getRange(row, 3).setValue(nextBusinessDay); // C列に翌営業日を設定
+      }
+    } else {
+      sheet.getRange(row, 3).setValue(""); // チェックが外れた場合はC列を空白に
+    }
+  }
+}
+
+function calculateNextBusinessDay(date, holidaySheetName) {
+  const holidaySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(holidaySheetName);
+  const holidays = holidaySheet.getRange("A2:A").getValues().flat().filter(String).map(date => {
+    return Utilities.formatDate(new Date(date), "Asia/Tokyo", "yyyy/MM/dd");
+  }); // 祝日リストをフォーマット
+
+  let nextDay = new Date(date);
+  do {
+    nextDay.setDate(nextDay.getDate() + 1); // 翌日を計算
+  } while (
+    nextDay.getDay() === 0 || // 日曜日
+    nextDay.getDay() === 6 || // 土曜日
+    holidays.includes(Utilities.formatDate(nextDay, "Asia/Tokyo", "yyyy/MM/dd")) // 祝日
+  );
+
+  return Utilities.formatDate(nextDay, "Asia/Tokyo", "yyyy/MM/dd");
+}
