@@ -54,5 +54,17 @@ pdfcrack -f filename.pdf
 ctrl + C = 一時保存
 pdfcrack -f filename.pdf -l savedstate.sav
 
+//////　アンインストール
+手順１．Linux ディストリビューション(Ubuntu) を消去する
+コマンドプロンプトを起動
+wsl -l -v と入力して，Linux の状態を確認する
+
+wsl --shutdown と入力して，Linux を停止させる
+※ WSL2 の再起動やシャットダウンは，WSL2 本体からは行えません．
+
+再度，wsl -l -v と入力して，Linux が停止していることを確認する
+
+wsl --unregister ubuntu と入力して，Ubuntu の登録を解除する
+
 ///fcrackzip///
 fcrackzip -u -c Aa1 -l 1-4 filename.zip
