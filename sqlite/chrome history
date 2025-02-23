@@ -1,0 +1,24 @@
+// 参照　https://qiita.com/MURAMASA2470/items/d081e71d79c4dc36671e
+
+// Windowsの場合
+> cd '~\AppData\Local\Google\Chrome\User Data\Default\'
+
+// sqliteの中に入る
+sqlite>sqlite3 History
+
+// テーブル一覧の表示
+sqlite> .tables
+
+// .mode [モード名] でモード指定
+sqlite> .mode csv
+
+// .output [ファイル名].csv でファイル名指定
+// 今回はユーザーのホームディレクトリに保存
+sqlite> .output ~/result.csv
+
+// ヘッダーをつける
+sqlite> .headers on
+
+// 抽出
+sqlite> select urls.id, datetime(visits.visit_time/1000000-11644473600,'unixepoch','localtime') as visit_time, urls.title, urls.url from visits left join urls on visits.url = urls.id order by visits.id desc;
+sqlite3 History -header -csv "SELECT url, title, visit_count, last_visit_time FROM urls;" > history.csv
