@@ -1,4 +1,5 @@
 // 参照　https://qiita.com/MURAMASA2470/items/d081e71d79c4dc36671e
+// https://www.rasukarusan.com/entry/2019/04/27/000000
 
 // Windowsの場合
 > cd '~\AppData\Local\Google\Chrome\User Data\Default\'
@@ -21,4 +22,3 @@ sqlite> .headers on
 
 // 抽出
 sqlite> select urls.id, datetime(visits.visit_time/1000000-11644473600,'unixepoch','localtime') as visit_time, urls.title, urls.url from visits left join urls on visits.url = urls.id order by visits.id desc;
-sqlite3 History -header -csv "SELECT url, title, visit_count, last_visit_time FROM urls;" > history.csv
