@@ -1,0 +1,55 @@
+## 参照
+https://qiita.com/a-hira/items/c6a9eaa0fbdfa71d1e0c
+
+#Ubuntuの更新
+sudo apt update
+sudo apt upgrade
+
+#日本語パックのインストール
+sudo apt install language-pack-ja
+
+#日本語の適用
+sudo update-locale LANG=ja_JP.UTF-8
+
+#一度Ubuntuを終了する
+exit
+
+#日本語マニュアルのインストール
+sudo apt install manpages-ja manpages-ja-dev
+
+#マニュアル表示　※ページ送りはEnterキー、終了はqキー
+man ls
+
+
+#xrdpインストール
+sudo apt install xrdp
+#ポート変更
+sudo sed -i 's/3389/13389/g' /etc/xrdp/xrdp.ini
+
+sudo nano /etc/xrdp/xrdp.ini
+- port=3389
++ port=13389
+
+localhost:13389
+
+
+#Ubuntu Desktop インストール
+sudo apt install ubuntu-desktop-minimal
+
+code ~/.xsessionrc
+export GNOME_SHELL_SESSION_MODE=ubuntu
+export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+export XDG_DATA_DIRS=/usr/share/ubuntu:/usr/local/share:/usr/share:/var/lib/snapd/desktop
+export WAYLAND_DISPLAY=
+export XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg
+
+
+*** Powersell
+#インストール済みの環境確認
+wsl --list --verbose
+
+#インストール済みの環境をシャットダウン　※アンインストールする場合、その前にシャットダウンを行う
+wsl --shutdown
+
+#インストール済みの環境をアンインストール　※listで表示させたNameに記載されている名称を指定し、アンインストールする
+wsl --unregister Ubuntu
