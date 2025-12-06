@@ -1,319 +1,312 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <base target="_top">
+  <!-- 
+    【重要】ここに以前あった <base target="_top"> は削除しました。
+    これが存在すると、保存時に白紙ページへ強制遷移してしまいます。
+  -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   
-  <!-- Fonts & Icons -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   
-  <!-- CSS Libraries -->
+  <!-- Libraries -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
 
   <style>
     :root {
-      --primary-color: #1a73e8; --bg-color: #f0f2f5; --card-bg: #ffffff; --text-color: #202124;
-      --radius: 16px; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --primary-color: #0f9d58; --accent-color: #4285f4; --bg-color: #f8f9fa; --card-bg: #ffffff; --text-color: #3c4043; --radius: 12px;
     }
-    body { font-family: 'Roboto', 'Noto Sans JP', sans-serif; background-color: var(--bg-color); color: var(--text-color); padding-bottom: 60px; }
+    body { font-family: 'Noto Sans JP', 'Roboto', sans-serif; background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px; overscroll-behavior-y: none; }
     
-    /* Header */
-    .app-header { background: var(--card-bg); padding: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem; position: sticky; top: 0; z-index: 1000; }
-    .app-title { font-size: 1.25rem; font-weight: 500; color: #5f6368; display: flex; align-items: center; gap: 10px; }
-    .app-title i { color: var(--primary-color); font-size: 1.5rem; }
+    .app-header { background: var(--card-bg); padding: 0.8rem 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 1.5rem; position: sticky; top: 0; z-index: 1000; }
+    .app-title { font-size: 1.4rem; font-weight: 700; color: #202124; display: flex; align-items: center; gap: 10px; }
+    .app-title i { color: var(--primary-color); font-size: 1.6rem; }
 
-    /* Card & Tabs */
-    .main-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: none; overflow: hidden; }
-    .nav-tabs { border-bottom: 1px solid #e0e0e0; padding: 0 1rem; background: #fff; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-    .nav-tabs::-webkit-scrollbar { display: none; }
-    .nav-link { border: none; color: #5f6368; font-weight: 500; padding: 1rem 1.5rem; border-bottom: 3px solid transparent; white-space: nowrap; }
-    .nav-link:hover { color: var(--primary-color); background: #f8f9fa; }
-    .nav-link.active { color: var(--primary-color); border-bottom-color: var(--primary-color); background: transparent; }
+    .main-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: none; overflow: hidden; }
+    .nav-tabs { border-bottom: 1px solid #dadce0; padding: 0 1rem; background: #fff; }
+    .nav-link { border: none; color: #5f6368; font-weight: 500; padding: 1rem 1.5rem; border-bottom: 3px solid transparent; transition: 0.2s; cursor: pointer; }
+    .nav-link:hover { color: var(--primary-color); background: #f1f8f6; }
+    .nav-link.active { color: var(--primary-color); border-bottom-color: var(--primary-color); background: transparent; font-weight: 700; }
 
-    /* Drop Zone */
-    .drop-zone { border: 2px dashed #dadce0; border-radius: var(--radius); padding: 3rem 1rem; text-align: center; background-color: #f8f9fa; cursor: pointer; transition: all 0.3s ease; color: #5f6368; margin: 20px; }
-    .drop-zone:hover, .drop-zone.dragover { background-color: #e8f0fe; border-color: var(--primary-color); color: var(--primary-color); }
-    .drop-zone i { font-size: 2.5rem; margin-bottom: 0.5rem; display: block; }
+    .drop-zone { border: 2px dashed #dadce0; border-radius: var(--radius); padding: 4rem 2rem; text-align: center; background-color: #f8f9fa; cursor: pointer; transition: all 0.2s; color: #5f6368; margin: 20px; }
+    .drop-zone:hover { background-color: #e6f4ea; border-color: var(--primary-color); color: var(--primary-color); }
 
-    /* Tab 1: Image Editor */
-    .img-editor-wrapper {
-      background: #202124; min-height: 400px; max-height: 70vh;
-      display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative;
+    /* Editor */
+    .editor-container { 
+      background: #202124; height: 65vh; min-height: 450px; 
+      display: flex; justify-content: center; align-items: center; 
+      position: relative; overflow: hidden; padding: 20px; 
+      touch-action: none; 
     }
-    .img-editor-wrapper img#preview1 { max-width: 100%; max-height: 70vh; display: block; }
-    .fabric-container { display: none; }
+    .canvas-wrapper { box-shadow: 0 0 30px rgba(0,0,0,0.5); max-width: 100%; max-height: 100%; display: flex; justify-content: center; align-items: center; }
+    #cropperImg { display: block; max-width: 100%; max-height: 100%; }
     
-    /* Toolbar Overlay (Mode Switcher) */
-    .editor-overlay-top {
-      position: absolute; top: 15px; left: 0; right: 0; 
-      display: flex; justify-content: center; gap: 10px; z-index: 100; pointer-events: none;
-    }
-    .mode-switcher, .file-actions {
-      background: rgba(255,255,255,0.95); border-radius: 24px; padding: 4px;
-      display: flex; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); pointer-events: auto;
-    }
-    .mode-btn { border: none; background: transparent; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: #5f6368; transition: all 0.2s; }
-    .mode-btn.active { background: var(--primary-color); color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-    .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: #5f6368; display: flex; align-items: center; justify-content: center; }
-    .icon-btn:hover { background: #f1f3f4; color: var(--primary-color); }
-
-    /* Tools Panel */
-    .tools-panel { background: #f8f9fa; border-top: 1px solid #e0e0e0; padding: 15px; }
-    .tool-group { display: none; }
-    .tool-group.active { display: block; animation: fadeIn 0.3s; }
-    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-
-    /* Custom Buttons for Decor */
-    .btn-tool { width: 36px; height: 36px; border-radius: 6px; border: 1px solid #dadce0; background: white; color: #5f6368; display: inline-flex; align-items: center; justify-content: center; margin-right: 4px; margin-bottom: 4px; transition: all 0.2s; }
-    .btn-tool:hover { background: #f1f3f4; color: var(--primary-color); }
-    .btn-tool.active { background: #e8f0fe; color: var(--primary-color); border-color: var(--primary-color); }
-
-    /* Color Pickers */
-    .color-preset { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #dadce0; cursor: pointer; display: inline-block; margin-right: 4px; }
-    .color-preset:hover { transform: scale(1.1); }
-    input[type="color"] { width: 30px; height: 30px; padding: 0; border: none; border-radius: 4px; cursor: pointer; vertical-align: middle;}
-
-    .form-label-sm { font-size: 0.75rem; color: #5f6368; margin-bottom: 2px; display:block; }
+    .editor-top-bar { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; z-index: 100; }
+    .top-actions { background: rgba(255,255,255,0.95); padding: 6px; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); pointer-events: auto; display: flex; gap: 8px; }
     
-    /* Sortable & General */
-    .sortable-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; padding: 20px; }
-    .sortable-item { background: #fff; border: 1px solid #dadce0; border-radius: 12px; position: relative; cursor: grab; overflow: hidden; aspect-ratio: 1 / 1.4; display: flex; flex-direction: column; }
-    .sortable-item img, .sortable-item canvas { width: 100%; height: 100%; object-fit: contain; background: #f1f3f4; }
-    .item-actions { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 8px; }
-    .badge-page { align-self: flex-start; background: rgba(0,0,0,0.6); color: white; font-size: 12px; padding: 2px 6px; border-radius: 4px; }
-    .action-row { margin-top: auto; display: flex; justify-content: flex-end; gap: 5px; }
-    .btn-icon { width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,255,255,0.9); color: #5f6368; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    .btn-icon:hover { background: var(--primary-color); color: white; }
-    .btn-icon.delete:hover { background: #ea4335; }
+    .btn-icon { width: 36px; height: 36px; border-radius: 50%; border: none; background: transparent; color: #5f6368; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-size: 1.1rem; }
+    .btn-icon:hover { background: #e6f4ea; color: var(--primary-color); }
+    
+    .btn-return-group { pointer-events: auto; display: flex; gap: 5px; }
+    .btn-return { background: var(--primary-color); color: white; padding: 0 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: none; align-items: center; gap: 5px; cursor: pointer; border:none; height: 36px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .btn-return:hover { background: #0b8043; }
+    .btn-cancel-edit { background: #5f6368; color: white; padding: 0 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: none; align-items: center; gap: 5px; cursor: pointer; border:none; height: 36px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .btn-cancel-edit:hover { background: #3c4043; }
 
-    /* Loading */
-    .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
-    .spinner-border { width: 3rem; height: 3rem; border-width: 0.25em; }
+    .crop-controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(32,33,36,0.9); padding: 10px 25px; border-radius: 30px; display: flex; gap: 15px; z-index: 200; pointer-events: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+    /* Tools */
+    .tools-panel { background: #fff; border-top: 1px solid #e0e0e0; padding: 15px 20px; }
+    .section-label { font-size: 0.75rem; color: #9aa0a6; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+    
+    .btn-tool { width: 42px; height: 42px; border: 1px solid #dadce0; border-radius: 8px; background: #fff; color: #5f6368; display: inline-flex; align-items: center; justify-content: center; margin-right: 5px; margin-bottom: 5px; transition: all 0.2s; position: relative; font-size: 1.1rem; }
+    .btn-tool:hover { background: #f1f3f4; color: var(--primary-color); border-color: #b7e1cd; }
+    .btn-tool.active { background: #e6f4ea; color: var(--primary-color); border-color: var(--primary-color); box-shadow: inset 0 0 5px rgba(15,157,88,0.2); }
+    
+    .color-picker-wrapper { display: inline-flex; align-items: center; gap: 5px; background: #fff; padding: 2px 8px 2px 2px; border-radius: 20px; border: 1px solid #dadce0; cursor: pointer;}
+    .color-picker-wrapper:hover { background: #f8f9fa; }
+    input[type="color"] { width: 28px; height: 28px; border: none; padding: 0; border-radius: 50%; cursor: pointer; background: none; }
+    .color-preset { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); display: inline-block; cursor: pointer; transition: transform 0.1s; }
+    .color-preset:hover { transform: scale(1.2); }
+
+    /* PDF Grid */
+    .sortable-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; padding: 25px; background: #f8f9fa; }
+    .sortable-item { background: #fff; border: 1px solid #dadce0; border-radius: 10px; position: relative; aspect-ratio: 1/1.4; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
+    .sortable-item.selected { border: 3px solid var(--primary-color); transform: translateY(-3px); }
+    .canvas-holder { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #fff; }
+    .canvas-holder canvas, .canvas-holder img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    
+    .item-overlay { position: absolute; inset: 0; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; z-index: 10; }
+    .item-header { display: flex; justify-content: space-between; align-items: flex-start; pointer-events: auto; }
+    .badge-page { background: rgba(32,33,36,0.8); color: white; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+    .check-select { width: 24px; height: 24px; cursor: pointer; border: 1px solid #999; border-radius: 4px; }
+    
+    .item-actions { margin-top: auto; display: flex; justify-content: center; gap: 5px; background: rgba(255,255,255,0.95); padding: 5px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); pointer-events: auto; opacity: 1; transition: 0.2s; }
+    .btn-mini { height: 32px; padding: 0 10px; border-radius: 4px; border: 1px solid #dadce0; background: white; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 4px; cursor:pointer;}
+    .btn-mini:hover { background: #f1f3f4; }
+    .btn-mini.edit { color: #1967d2; border-color: #d2e3fc; background: #f8fbff; }
+    .btn-mini.del { color: #c5221f; border-color: #fce8e6; background: #fff8f8; }
+
+    .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
+    .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none; width: 90%; max-width: 300px; text-align: center; }
+    .toast-msg { background: #323232; color: white; padding: 12px 24px; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 10px; opacity: 0; transition: opacity 0.3s; pointer-events: auto; }
+    .toast-msg.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-<div id="loading" class="loading-overlay">
-  <div class="spinner-border text-primary"></div>
-  <h5 class="mt-3 text-secondary" id="loadingText">Processing...</h5>
-  <p class="text-muted small" id="loadingSubText"></p>
-</div>
+<div class="toast-container"><div class="toast-msg" id="toastMsg"><i class="bi bi-check-circle-fill text-success"></i><span id="toastText">保存しました</span></div></div>
+<div id="loading" class="loading-overlay"><div class="spinner-border text-success"></div><h5 class="mt-3 text-secondary">処理中...</h5><p class="small text-muted" id="loadingSub"></p></div>
 
 <header class="app-header">
-  <div class="container">
-    <div class="app-title"><i class="bi bi-layers-half"></i> <span>ZeroTrace Converter <small class="text-muted ms-2" style="font-size:0.8rem">Pro</small></span></div>
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="app-title"><i class="bi bi-box-seam-fill"></i> <span>LocalDoc Studio</span></div>
   </div>
 </header>
 
 <div class="container">
   <div class="main-card mb-4">
     <ul class="nav nav-tabs" id="mainTab" role="tablist">
-      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab1"><i class="bi bi-crop me-2"></i>画像加工</button></li>
-      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab2"><i class="bi bi-images me-2"></i>画像→PDF</button></li>
-      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab3"><i class="bi bi-file-earmark-image me-2"></i>PDF→画像</button></li>
-      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab4"><i class="bi bi-grid-1x2 me-2"></i>PDF編集</button></li>
+      <li class="nav-item"><button class="nav-link active" id="tab1-btn" data-bs-toggle="tab" data-bs-target="#tab1"><i class="bi bi-palette2 me-2"></i>画像編集</button></li>
+      <li class="nav-item"><button class="nav-link" id="tab2-btn" data-bs-toggle="tab" data-bs-target="#tab2"><i class="bi bi-file-earmark-pdf me-2"></i>PDF編集</button></li>
     </ul>
 
     <div class="tab-content">
       
-      <!-- Tab 1: Image Processing -->
+      <!-- Tab 1: Image Editor -->
       <div class="tab-pane fade show active" id="tab1">
-        <!-- Initial Drop Zone -->
         <div class="drop-zone m-4" id="dz1">
-          <i class="bi bi-cloud-upload"></i>
-          <span class="d-block fw-bold">画像をアップロード</span>
-          <span class="small text-muted">ドラッグ＆ドロップ または クリック</span>
+          <i class="bi bi-cloud-arrow-up display-4"></i>
+          <span class="d-block fw-bold fs-5 mt-3">画像をアップロード</span>
+          <span class="small text-muted">ここにドラッグ＆ドロップ または クリックして開く</span>
           <input type="file" id="inputImg1" accept="image/*" hidden>
         </div>
 
-        <!-- Editor -->
         <div id="editorArea1" style="display:none;">
-          <div class="img-editor-wrapper" id="dropAreaEditor">
-             <div class="editor-overlay-top">
-               <div class="mode-switcher">
-                 <button class="mode-btn active" id="btnModeCrop" onclick="switchMode('crop')">トリミング</button>
-                 <button class="mode-btn" id="btnModeDecor" onclick="switchMode('decor')">デコレーション</button>
-               </div>
-               <div class="file-actions">
-                 <button class="icon-btn" onclick="document.getElementById('inputImg1New').click()" title="新しいファイルを読み込む"><i class="bi bi-folder2-open"></i></button>
+          <div class="editor-container" id="editorContainer">
+             <div class="editor-top-bar" id="editorTopBar">
+               <div class="top-actions">
+                 <button class="btn-icon" onclick="document.getElementById('inputImg1New').click()" title="新規ファイル"><i class="bi bi-folder2-open"></i></button>
                  <input type="file" id="inputImg1New" accept="image/*" hidden>
-                 <button class="icon-btn" onclick="resetImage1()" title="リセット"><i class="bi bi-arrow-counterclockwise"></i></button>
+                 <button class="btn-icon" onclick="undo()" title="元に戻す"><i class="bi bi-arrow-90deg-left"></i></button>
+                 <button class="btn-icon" onclick="resetEditorConfirm(false)" title="全消去"><i class="bi bi-trash3"></i></button>
+               </div>
+               <div class="btn-return-group">
+                 <button class="btn-cancel-edit" id="btnCancelPdf" onclick="cancelPdfEdit()"><i class="bi bi-x-lg"></i> キャンセル</button>
+                 <button class="btn-return" id="btnReturnPdf" onclick="updatePdfPage()"><i class="bi bi-check-lg"></i> PDFへ反映</button>
                </div>
              </div>
-             <img id="preview1" src="">
-             <div class="fabric-container" id="fabricWrapper">
+
+             <div class="crop-controls" id="cropControls" style="display:none;">
+               <button class="btn btn-light rounded-pill px-3 fw-bold text-danger" onclick="cancelCrop()">キャンセル</button>
+               <button class="btn btn-success rounded-pill px-4 fw-bold" onclick="applyCrop()">適用</button>
+             </div>
+
+             <div class="canvas-wrapper">
                 <canvas id="fabricCanvas"></canvas>
+                <img id="cropperImg" style="display:none;">
              </div>
           </div>
           
-          <div class="tools-panel">
-            
-            <!-- Tool Group 1: Crop/Resize -->
-            <div id="toolsCrop" class="tool-group active">
-              <div class="row g-3">
-                <div class="col-lg-3 col-6">
-                  <label class="form-label-sm">リサイズ (px)</label>
-                  <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" id="resizeW" placeholder="幅">
-                    <span class="input-group-text">×</span>
-                    <input type="number" class="form-control" id="resizeH" placeholder="高さ">
+          <div class="tools-panel" id="mainToolbar">
+            <div class="row g-3">
+              <div class="col-lg-9">
+                <!-- Group 1: Tools -->
+                <div class="tool-section">
+                  <div class="section-label"><i class="bi bi-tools"></i> ツール (選択中: <span id="currentToolName" class="fw-normal">なし</span>)</div>
+                  <div class="d-flex flex-wrap gap-1 align-items-center">
+                    <button class="btn-tool" onclick="startCrop()" title="トリミング"><i class="bi bi-crop"></i></button>
+                    <button class="btn-tool" onclick="rotateImage(-90)" title="左回転"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    <button class="btn-tool" onclick="rotateImage(90)" title="右回転"><i class="bi bi-arrow-clockwise"></i></button>
+                    <div class="vr mx-2"></div>
+                    <button class="btn-tool" onclick="addShape('rect')" title="四角形"><i class="bi bi-square"></i></button>
+                    <button class="btn-tool" onclick="addShape('roundRect')" title="角丸四角形"><i class="bi bi-app"></i></button>
+                    <button class="btn-tool" onclick="addShape('circle')" title="円"><i class="bi bi-circle"></i></button>
+                    <button class="btn-tool" onclick="addShape('bubble')" title="吹き出し"><i class="bi bi-chat-dots"></i></button>
+                    <button class="btn-tool" onclick="addShape('arrow')" title="矢印"><i class="bi bi-arrow-right"></i></button>
+                    <div class="vr mx-2"></div>
+                    <button class="btn-tool" onclick="addShapeWithText('roundRect')" title="角丸+文字"><i class="bi bi-back"></i></button>
+                    <button class="btn-tool" onclick="addShapeWithText('bubble')" title="吹き出し+文字"><i class="bi bi-chat-text"></i></button>
+                    <div class="vr mx-2"></div>
+                    <button class="btn-tool" onclick="addText()" title="文字追加"><i class="bi bi-fonts"></i></button>
+                    <button class="btn-tool" id="btnMarker" onclick="toggleMarker()" title="マーカー"><i class="bi bi-pen"></i></button>
+                    <button class="btn-tool" id="btnHighlighter" onclick="toggleHighlighter()" title="蛍光ペン"><i class="bi bi-brush text-warning"></i></button>
+                    <button class="btn-tool text-danger" onclick="deleteActive()" title="削除"><i class="bi bi-trash"></i></button>
                   </div>
                 </div>
-                <div class="col-lg-2 col-6">
-                  <label class="form-label-sm">回転</label>
-                  <div class="btn-group w-100">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="rotateCrop(-90)"><i class="bi bi-arrow-counterclockwise"></i></button>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="rotateCrop(90)"><i class="bi bi-arrow-clockwise"></i></button>
+
+                <!-- Group 2: Properties -->
+                <div class="tool-section">
+                  <div class="section-label"><i class="bi bi-sliders"></i> プロパティ <small class="text-muted fw-normal ms-2" id="propTarget">(未選択)</small></div>
+                  <div class="d-flex align-items-center flex-wrap gap-2">
+                    
+                    <div id="textControls" class="d-none align-items-center gap-2 border-end pe-2">
+                      <input type="text" class="form-control form-control-sm" id="textInput" placeholder="テキスト編集" style="width:160px;" oninput="updateProp('text')">
+                    </div>
+
+                    <div class="d-inline-flex align-items-center gap-1 border rounded px-2 py-1">
+                      <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="checkFill" checked onchange="updateProp('fill')"></div>
+                      <div class="color-picker-wrapper" title="塗りつぶし色">
+                        <input type="color" id="pickerFill" value="#ff0000" onchange="updateProp('fillColor')">
+                        <span class="small ms-1">塗</span>
+                      </div>
+                      <div class="vr mx-1"></div>
+                      <div class="color-picker-wrapper" title="枠線/文字色">
+                        <input type="color" id="pickerStroke" value="#000000" onchange="updateProp('stroke')">
+                        <span class="small ms-1">枠/線</span>
+                      </div>
+                    </div>
+
+                    <div class="input-group input-group-sm" id="boxStrokeWidth" style="width: 110px;">
+                      <span class="input-group-text">線幅</span>
+                      <input type="number" class="form-control" id="numStrokeWidth" value="4" min="0" onchange="updateProp('strokeWidth')">
+                    </div>
+                    <div class="input-group input-group-sm" id="boxFontSize" style="width: 120px; display:none;">
+                      <span class="input-group-text">サイズ</span>
+                      <input type="number" class="form-control" id="numFontSize" value="40" min="1" onchange="updateProp('fontSize')">
+                    </div>
+
+                    <div class="d-flex align-items-center gap-1 ms-2">
+                       <span class="color-preset" style="background:#000000" onclick="setPreset('#000000')"></span>
+                       <span class="color-preset" style="background:#ffffff" onclick="setPreset('#ffffff')"></span>
+                       <span class="color-preset" style="background:#ff0000" onclick="setPreset('#ff0000')"></span>
+                       <span class="color-preset" style="background:#0f9d58" onclick="setPreset('#0f9d58')"></span>
+                       <span class="color-preset" style="background:#4285f4" onclick="setPreset('#4285f4')"></span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Tool Group 2: Decorate -->
-            <div id="toolsDecor" class="tool-group">
-               <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
-                 <!-- Objects -->
-                 <div class="btn-group me-2">
-                   <button class="btn-tool" onclick="addShape('rect')" title="四角"><i class="bi bi-square"></i></button>
-                   <button class="btn-tool" onclick="addShape('circle')" title="円"><i class="bi bi-circle"></i></button>
-                   <button class="btn-tool" onclick="addShape('roundRect')" title="角丸四角"><i class="bi bi-app"></i></button>
-                   <button class="btn-tool" onclick="addShape('bubbleRect')" title="吹き出し(角)"><i class="bi bi-chat-square"></i></button>
-                   <button class="btn-tool" onclick="addShape('bubbleRound')" title="吹き出し(丸)"><i class="bi bi-chat"></i></button>
-                   <button class="btn-tool" onclick="addShape('arrow')" title="矢印"><i class="bi bi-arrow-right"></i></button>
-                 </div>
-                 <button class="btn-tool" onclick="addText()" title="文字"><i class="bi bi-fonts"></i></button>
-                 <button class="btn-tool" id="btnMarker" onclick="toggleMarker()" title="マーカー"><i class="bi bi-brush"></i></button>
-                 <div class="vr"></div>
-                 <button class="btn-tool" onclick="deleteActiveObject()" title="削除"><i class="bi bi-trash text-danger"></i></button>
-               </div>
-               
-               <!-- Property Editor -->
-               <div class="card p-2 bg-light border-0">
-                 <div class="row g-2 align-items-end">
-                   <!-- Fill Color -->
-                   <div class="col-auto">
-                     <label class="form-label-sm">塗つぶし</label>
-                     <div class="d-flex align-items-center gap-1">
-                        <div class="form-check form-switch me-1">
-                          <input class="form-check-input" type="checkbox" id="checkFill" checked onchange="updateProp('fill')">
-                        </div>
-                        <input type="color" id="pickerFill" value="#ff0000" onchange="updateProp('fill')">
+              <!-- Save -->
+              <div class="col-lg-3 border-start">
+                 <div class="tool-section">
+                   <div class="section-label">保存・出力</div>
+                   <div class="d-grid gap-2">
+                     <div class="input-group input-group-sm">
+                        <span class="input-group-text">最大KB</span>
+                        <input type="number" class="form-control" id="maxSizeKB" placeholder="無制限">
+                     </div>
+                     <div class="d-flex gap-2">
+                       <select id="fmt1" class="form-select form-select-sm">
+                         <option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="application/pdf">PDF</option>
+                       </select>
+                       <button class="btn btn-success btn-sm w-100" onclick="saveImage()">保存</button>
                      </div>
                    </div>
-                   <!-- Border Color -->
-                   <div class="col-auto">
-                     <label class="form-label-sm">枠線</label>
-                     <input type="color" id="pickerStroke" value="#000000" onchange="updateProp('stroke')">
-                   </div>
-                   <!-- Border Width & Font Size -->
-                   <div class="col-auto" style="width: 80px;">
-                      <label class="form-label-sm">サイズ/枠</label>
-                      <input type="number" class="form-control form-control-sm" id="numSize" value="4" min="0" onchange="updateProp('size')">
-                   </div>
-                   <!-- Quick Colors -->
-                   <div class="col-auto">
-                      <label class="form-label-sm">基本色</label>
-                      <div>
-                        <span class="color-preset" style="background:#000000" onclick="setPresetColor('#000000')"></span>
-                        <span class="color-preset" style="background:#ffffff" onclick="setPresetColor('#ffffff')"></span>
-                        <span class="color-preset" style="background:#ff0000" onclick="setPresetColor('#ff0000')"></span>
-                        <span class="color-preset" style="background:#0000ff" onclick="setPresetColor('#0000ff')"></span>
-                        <span class="color-preset" style="background:#00ff00" onclick="setPresetColor('#00ff00')"></span>
-                        <span class="color-preset" style="background:#ffff00" onclick="setPresetColor('#ffff00')"></span>
-                      </div>
-                   </div>
+                   <div class="text-center mt-2"><span class="badge bg-light text-secondary border fw-normal" id="imgInfo"></span></div>
                  </div>
-               </div>
-            </div>
-
-            <hr class="my-3">
-            <!-- Save Options -->
-            <div class="row g-3 align-items-end">
-              <div class="col-lg-3 col-6">
-                <label class="form-label-sm fw-bold text-primary"><i class="bi bi-lightning-charge-fill"></i> 最大サイズ (KB)</label>
-                <input type="number" class="form-control form-control-sm" id="maxSizeKB" placeholder="指定なし">
               </div>
-              <div class="col-lg-2 col-6">
-                  <label class="form-label-sm">形式</label>
-                  <select id="fmt1" class="form-select form-select-sm">
-                      <option value="image/jpeg">JPG</option>
-                      <option value="image/png">PNG</option>
-                  </select>
-              </div>
-              <div class="col-lg-3 col-12 ms-auto">
-                <button class="btn btn-primary btn-sm w-100 py-2" onclick="saveImage()">
-                  <i class="bi bi-download me-1"></i>画像を保存
-                </button>
-              </div>
-            </div>
-            <div class="text-center mt-2">
-               <span class="badge bg-light text-secondary border fw-normal" id="originalSizeInfo"></span>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Tab 2: Image to PDF -->
+      
+      <!-- Tab 2: PDF Editor -->
       <div class="tab-pane fade" id="tab2">
         <div class="drop-zone m-4" id="dz2">
-          <i class="bi bi-images"></i>
-          <span class="d-block fw-bold">画像を追加（複数可）</span>
-          <input type="file" id="inputImg2" accept="image/*" multiple hidden>
+          <i class="bi bi-file-earmark-pdf display-4"></i>
+          <span class="d-block fw-bold fs-5 mt-3">PDFを追加</span>
+          <span class="small text-muted">結合・編集・書き込み・画像化</span>
+          <input type="file" id="inputPdf2" accept="application/pdf" multiple hidden onclick="this.value=''">
         </div>
-        <div class="bg-light p-3 border-top border-bottom d-flex justify-content-between align-items-center" id="toolbar2" style="display:none;">
-          <span class="small text-muted"><i class="bi bi-info-circle me-1"></i>ドラッグして並べ替え</span>
-          <button class="btn btn-primary btn-sm" onclick="generatePdfFromImages()"><i class="bi bi-file-earmark-pdf me-1"></i>PDF保存</button>
+        
+        <div class="bg-white p-3 border-bottom shadow-sm sticky-top" id="toolbar2" style="display:none; top: 0; z-index: 900;">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" id="checkAllPdf" class="form-check-input" onchange="toggleAllPdf(this.checked)">
+              <span class="small fw-bold">全選択</span>
+              <span class="small text-muted ms-2" id="selCount">0 ページ選択中</span>
+            </div>
+            
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('inputPdf2').click()"><i class="bi bi-plus-lg"></i> PDF追加</button>
+              
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                  選択ページを保存...
+                </button>
+                <ul class="dropdown-menu">
+                  <li><h6 class="dropdown-header">PDFとして保存</h6></li>
+                  <li><a class="dropdown-item" href="#" onclick="saveSelected('pdf')"><i class="bi bi-file-pdf"></i> PDF結合保存</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><h6 class="dropdown-header">画像として保存</h6></li>
+                  <li><a class="dropdown-item" href="#" onclick="saveSelected('zip')"><i class="bi bi-file-zip"></i> まとめてZIP保存</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="saveSelected('individual')"><i class="bi bi-images"></i> 個別ファイルで保存</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" href="#" onclick="deleteSelected()"><i class="bi bi-trash"></i> ページ削除</a></li>
+                </ul>
+              </div>
+
+              <div class="btn-group">
+                <button type="button" class="btn btn-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                  全ページを保存...
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#" onclick="saveAll('pdf')"><i class="bi bi-file-pdf"></i> PDF結合保存</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="saveAll('zip')"><i class="bi bi-file-zip"></i> まとめてZIP保存</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="saveAll('individual')"><i class="bi bi-images"></i> 個別ファイルで保存</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
+        
         <div class="sortable-grid" id="grid2"></div>
       </div>
 
-      <!-- Tab 3: PDF to Image -->
-      <div class="tab-pane fade" id="tab3">
-        <div class="drop-zone m-4" id="dz3">
-          <i class="bi bi-file-pdf"></i>
-          <span class="d-block fw-bold">PDFを開く</span>
-          <input type="file" id="inputPdf3" accept="application/pdf" hidden>
-        </div>
-        <div id="viewerArea3" style="display:none;">
-          <div class="tools-panel d-flex flex-wrap gap-2 justify-content-center align-items-center">
-             <button class="btn btn-outline-secondary btn-sm" onclick="changePage(-1)"><i class="bi bi-chevron-left"></i></button>
-             <span class="fw-bold mx-2" id="pageIndicator">1 / 1</span>
-             <button class="btn btn-outline-secondary btn-sm" onclick="changePage(1)"><i class="bi bi-chevron-right"></i></button>
-             <div class="vr mx-2"></div>
-             <select id="fmt3" class="form-select form-select-sm" style="width:auto;"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option></select>
-             <button class="btn btn-outline-primary btn-sm" onclick="saveCurrentPageImage()">今のページ</button>
-             <button class="btn btn-success btn-sm" onclick="saveAllPagesZip()">全ページ(ZIP)</button>
-             <button class="btn btn-secondary btn-sm ms-auto" onclick="closeViewer3()">閉じる</button>
-          </div>
-          <div class="pdf-viewer-container" style="background:#e8eaed; padding:20px; text-align:center; overflow:auto;">
-              <canvas id="pdfCanvas3" style="box-shadow:0 4px 10px rgba(0,0,0,0.2); max-width:100%;"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 4: PDF Edit -->
-      <div class="tab-pane fade" id="tab4">
-        <div class="drop-zone m-4" id="dz4">
-          <i class="bi bi-collection"></i>
-          <span class="d-block fw-bold">PDFを追加</span>
-          <input type="file" id="inputPdf4" accept="application/pdf" multiple hidden>
-        </div>
-        <div class="bg-light p-3 border-top border-bottom d-flex justify-content-between align-items-center" id="toolbar4" style="display:none;">
-          <span class="small text-muted"><i class="bi bi-arrow-repeat me-1"></i>回転・削除・並べ替え</span>
-          <button class="btn btn-primary btn-sm" onclick="mergeAndSavePdf()"><i class="bi bi-download me-1"></i>編集保存</button>
-        </div>
-        <div class="sortable-grid" id="grid4"></div>
-      </div>
     </div>
   </div>
-  <div class="text-center text-muted small mt-4">&copy; 2025 ZeroTrace Converter Pro</div>
+  <div class="text-center text-muted small mt-4">&copy; 2025 LocalDoc Studio</div>
 </div>
 
-<!-- Libraries -->
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
@@ -324,325 +317,538 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
 <script>
-  // Utils
-  const el = (id) => document.getElementById(id);
-  const showLoading = (show, t='Processing...', s='') => {
-    const l=el('loading'); if(show){el('loadingText').innerText=t;el('loadingSubText').innerText=s;l.style.display='flex';}else{l.style.display='none';}
+  // ==========================================
+  // INITIALIZATION & UTILS
+  // ==========================================
+  const el = id => document.getElementById(id);
+  const showLoading = (s, sub='') => { 
+    if(el('loading')) {
+      el('loading').style.display = s ? 'flex' : 'none'; 
+      if(el('loadingSub')) el('loadingSub').innerText = sub;
+    }
   };
-  const downloadBlob = (blob, filename) => {
-    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  function base64ToBlob(base64, mimeType) { 
+    try {
+      const bin = atob(base64.split(',')[1]); 
+      const buffer = new Uint8Array(bin.length); 
+      for (let i = 0; i < bin.length; i++) buffer[i] = bin.charCodeAt(i); 
+      return new Blob([buffer], { type: mimeType });
+    } catch(e) {
+      console.error("Blob conversion error", e);
+      return null;
+    }
+  }
+
+  // 【修正】ダウンロード処理：target属性は指定せず、現在のコンテキストで処理
+  const dlBlob = (b, n) => { 
+    const u = URL.createObjectURL(b); 
+    const a = document.createElement('a'); 
+    a.href = u; 
+    a.download = n; 
+    document.body.appendChild(a); 
+    a.click(); 
+    setTimeout(()=> { document.body.removeChild(a); URL.revokeObjectURL(u); }, 1000); 
+  };
+
+  function sendLog(type, details) { 
+    console.log(type, details); 
+    if(typeof google !== 'undefined' && google.script) {
+        google.script.run.withFailureHandler(e=>console.error(e)).recordLog(type, details); 
+    }
+  }
+  function showToast(msg) { 
+    const t=el('toastMsg'); 
+    el('toastText').innerText=msg; 
+    t.classList.add('show'); 
+    setTimeout(()=>t.classList.remove('show'),3000); 
+  }
+  function showSuccess(msg) { showLoading(false); showToast(msg); }
+  
+  // Settings Persistence
+  function loadSettings() {
+    try {
+      const s = JSON.parse(localStorage.getItem('lds_settings') || '{}');
+      if(s.fillColor) el('pickerFill').value = s.fillColor;
+      if(s.strokeColor) el('pickerStroke').value = s.strokeColor;
+      if(s.strokeWidth) el('numStrokeWidth').value = s.strokeWidth;
+      if(s.maxKB) el('maxSizeKB').value = s.maxKB;
+    } catch(e) { console.warn("Settings load error", e); }
+  }
+  function saveSetting() {
+    const s = { fillColor: el('pickerFill').value, strokeColor: el('pickerStroke').value, strokeWidth: el('numStrokeWidth').value, maxKB: el('maxSizeKB').value };
+    localStorage.setItem('lds_settings', JSON.stringify(s));
+  }
+
+  // Event Listeners
+  window.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+
+      const inputImg1 = el('inputImg1');
+      if(inputImg1) {
+          inputImg1.onclick = function(e) { e.target.value = ''; };
+          inputImg1.onchange = function(e) { editingPdfPageId=null; if(e.target.files[0]) loadFile1(e.target.files[0]); };
+      }
+      const inputImg1New = el('inputImg1New');
+      if(inputImg1New) {
+          inputImg1New.onclick = function(e) { e.target.value = ''; };
+          inputImg1New.onchange = function(e) { editingPdfPageId=null; if(e.target.files[0]) loadFile1(e.target.files[0]); };
+      }
+      const dz1 = el('dz1');
+      if(dz1) {
+          dz1.onclick = function() { el('inputImg1').click(); };
+          dz1.ondragover = function(e) { e.preventDefault(); dz1.classList.add('dragover'); };
+          dz1.ondrop = function(e) { e.preventDefault(); editingPdfPageId=null; if(e.dataTransfer.files[0]) loadFile1(e.dataTransfer.files[0]); };
+      }
+      
+      const inputPdf2 = el('inputPdf2');
+      if(inputPdf2) {
+          inputPdf2.onclick = function(e) { e.target.value = ''; };
+          inputPdf2.onchange = function(e) { addPdf2(e.target.files); };
+      }
+      const dz2 = el('dz2');
+      if(dz2) {
+          dz2.onclick = function() { el('inputPdf2').click(); };
+          dz2.ondragover = function(e) { e.preventDefault(); dz2.classList.add('dragover'); };
+          dz2.ondrop = function(e) { e.preventDefault(); addPdf2(e.dataTransfer.files); };
+      }
+  });
+
+  // Active Tool Highlight Helper
+  function setActiveTool(btn) {
+    document.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
+    el('btnMarker').classList.remove('active'); el('btnHighlighter').classList.remove('active');
+    if(btn) btn.classList.add('active');
+    el('currentToolName').innerText = btn ? btn.title : "なし";
+  }
+
+  // ==========================================
+  // TAB 1: EDITOR LOGIC
+  // ==========================================
+  let fabCanvas, cropper, originalBlob = null, currentScale = 1, editingPdfPageId = null, history = [], historyProcessing = false;
+
+  const loadFile1 = (f) => {
+    originalBlob = f;
+    el('dz1').style.display='none'; el('editorArea1').style.display='block';
+    
+    // Toggle Buttons based on mode
+    if(editingPdfPageId) {
+        el('btnReturnPdf').style.display = 'flex';
+        el('btnCancelPdf').style.display = 'flex';
+    } else {
+        el('btnReturnPdf').style.display = 'none';
+        el('btnCancelPdf').style.display = 'none';
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const imgObj = new Image();
+        imgObj.onload = () => {
+             const MAX_DIM = 2500;
+             let w=imgObj.width, h=imgObj.height, srcToUse = imgObj.src;
+             if(w > MAX_DIM || h > MAX_DIM) {
+                 const r = Math.min(MAX_DIM/w, MAX_DIM/h);
+                 w = Math.floor(w*r); h = Math.floor(h*r);
+                 const c = document.createElement('canvas'); c.width=w; c.height=h;
+                 c.getContext('2d').drawImage(imgObj, 0, 0, w, h);
+                 srcToUse = c.toDataURL('image/jpeg', 0.9);
+             }
+             initEditor(srcToUse, w, h);
+        };
+        imgObj.src = e.target.result;
+    };
+    reader.readAsDataURL(f);
   };
   
-  // Tab 1: Image Processing
-  let cropper1, fabricCanvas, currentMode = 'crop', originalFileBlob = null;
-  const img1 = el('preview1');
-  const fabricWrapper = el('fabricWrapper');
+  const initEditor = (src, w, h) => {
+      const container = el('editorContainer');
+      currentScale = Math.min((container.clientWidth-40)/w, (container.clientHeight-40)/h);
+      if(currentScale > 1) currentScale = 1;
 
-  // New File Handlers
-  el('inputImg1').addEventListener('change', e => { if(e.target.files[0]) loadFile1(e.target.files[0]); });
-  el('inputImg1New').addEventListener('change', e => { if(e.target.files[0]) loadFile1(e.target.files[0]); });
-  el('dropAreaEditor').addEventListener('dragover', e => { e.preventDefault(); });
-  el('dropAreaEditor').addEventListener('drop', e => { 
-    e.preventDefault(); if(e.dataTransfer.files[0]?.type.startsWith('image/')) loadFile1(e.dataTransfer.files[0]); 
-  });
-  el('dz1').addEventListener('click', () => el('inputImg1').click());
-  el('dz1').addEventListener('dragover', e => { e.preventDefault(); el('dz1').classList.add('dragover'); });
-  el('dz1').addEventListener('dragleave', () => el('dz1').classList.remove('dragover'));
-  el('dz1').addEventListener('drop', e => { e.preventDefault(); if(e.dataTransfer.files[0]) loadFile1(e.dataTransfer.files[0]); });
-
-  function loadFile1(file) {
-    originalFileBlob = file;
-    el('dz1').style.display='none'; el('editorArea1').style.display='block';
-    loadCropper(file);
-  }
-  function resetImage1() { if(originalFileBlob && confirm('初期状態に戻しますか？')) loadCropper(originalFileBlob); }
-
-  function loadCropper(blob) {
-    currentMode = 'crop'; updateModeUI();
-    if(fabricCanvas) { fabricCanvas.dispose(); fabricCanvas = null; }
-    img1.src = URL.createObjectURL(blob);
-    img1.style.display = 'block'; fabricWrapper.style.display = 'none';
-    if(cropper1) cropper1.destroy();
-    
-    img1.onload = () => {
-      el('resizeW').value = img1.naturalWidth; el('resizeH').value = img1.naturalHeight;
-      el('originalSizeInfo').innerText = `元サイズ: ${img1.naturalWidth} x ${img1.naturalHeight} px`;
-    };
-    cropper1 = new Cropper(img1, {
-      viewMode: 1, autoCropArea: 0.9, background: false,
-      crop(e) { el('resizeW').placeholder = Math.round(e.detail.width); el('resizeH').placeholder = Math.round(e.detail.height); }
-    });
-  }
-
-  async function switchMode(mode) {
-    if(mode === currentMode) return;
-    showLoading(true);
-    try {
-      if(mode === 'decor') {
-        const croppedCanvas = cropper1.getCroppedCanvas({ width: parseInt(el('resizeW').value)||undefined, height: parseInt(el('resizeH').value)||undefined });
-        cropper1.destroy(); cropper1 = null;
-        img1.style.display = 'none'; fabricWrapper.style.display = 'block';
-        
-        const cEl = el('fabricCanvas'); cEl.width = croppedCanvas.width; cEl.height = croppedCanvas.height;
-        fabricCanvas = new fabric.Canvas('fabricCanvas', { width: croppedCanvas.width, height: croppedCanvas.height });
-        fabric.Image.fromURL(croppedCanvas.toDataURL(), img => fabricCanvas.setBackgroundImage(img, fabricCanvas.renderAll.bind(fabricCanvas)));
-        
-        // Event Listeners for Property Panel sync
-        fabricCanvas.on('selection:created', updateToolsFromSelection);
-        fabricCanvas.on('selection:updated', updateToolsFromSelection);
-        fabricCanvas.on('selection:cleared', () => { /* reset or keep last */ });
-
-      } else {
-        const dataURL = fabricCanvas.toDataURL({ format: 'png' });
-        fabricCanvas.dispose(); fabricCanvas = null;
-        fabricWrapper.style.display = 'none'; img1.style.display = 'block'; img1.src = dataURL;
-        cropper1 = new Cropper(img1, { viewMode: 1, autoCropArea: 1, background: false,
-          ready(){ el('resizeW').value=img1.naturalWidth; el('resizeH').value=img1.naturalHeight; } });
+      if(fabCanvas) fabCanvas.dispose();
+      fabCanvas = new fabric.Canvas('fabricCanvas', { width: w * currentScale, height: h * currentScale });
+      
+      fabric.Image.fromURL(src, img => {
+        img.scale(currentScale);
+        fabCanvas.setBackgroundImage(img, fabCanvas.renderAll.bind(fabCanvas));
+        saveHistory();
+      });
+      
+      fabCanvas.on('selection:created', updatePropsUI);
+      fabCanvas.on('selection:updated', updatePropsUI);
+      fabCanvas.on('selection:cleared', () => { 
+        el('textControls').classList.remove('d-flex'); el('textControls').classList.add('d-none');
+        el('boxStrokeWidth').style.display = 'flex'; el('boxFontSize').style.display = 'none'; 
+        el('propTarget').innerText = "(未選択)";
+      });
+      fabCanvas.on('object:modified', saveHistory); fabCanvas.on('object:added', saveHistory);
+      el('imgInfo').innerText = `${w}x${h}`;
+      sendLog('EDIT', 'Open Image');
+  };
+  
+  const saveHistory = () => { if(historyProcessing) return; if(history.length > 10) history.shift(); history.push(JSON.stringify(fabCanvas)); };
+  
+  const undo = () => { 
+      if(history.length <= 1) return; 
+      historyProcessing = true; 
+      history.pop(); 
+      const state = history[history.length - 1]; 
+      fabCanvas.loadFromJSON(state, () => { 
+          fabCanvas.renderAll(); 
+          historyProcessing = false; 
+      }); 
+  };
+  
+  const resetEditorConfirm = (force) => { 
+      if(force || (originalBlob && confirm('全消去してトップに戻りますか？'))) { 
+          history=[]; originalBlob=null; editingPdfPageId=null;
+          if(fabCanvas) { fabCanvas.dispose(); fabCanvas = null; }
+          if(cropper) { cropper.destroy(); cropper = null; }
+          el('editorArea1').style.display='none'; el('dz1').style.display='block';
+          if(el('inputImg1')) el('inputImg1').value='';
+          if(el('inputImg1New')) el('inputImg1New').value='';
+          el('cropperImg').src = '';
       }
-      currentMode = mode; updateModeUI();
-    } catch(e){ alert(e); } finally { showLoading(false); }
-  }
-  function updateModeUI() {
-    el('btnModeCrop').classList.toggle('active', currentMode === 'crop');
-    el('btnModeDecor').classList.toggle('active', currentMode === 'decor');
-    el('toolsCrop').classList.toggle('active', currentMode === 'crop');
-    el('toolsDecor').classList.toggle('active', currentMode === 'decor');
+  };
+
+  // Editor Tools
+  window.rotateImage = (angle) => { 
+      if(!fabCanvas)return; 
+      showLoading(true); 
+      setTimeout(()=>{ 
+          const u=fabCanvas.toDataURL({format:'png',multiplier:1/currentScale}); 
+          const i=new Image(); 
+          i.onload=()=>{ 
+              const c=document.createElement('canvas'); 
+              if(Math.abs(angle)===90){c.width=i.height;c.height=i.width;}else{c.width=i.width;c.height=i.height;} 
+              const x=c.getContext('2d'); 
+              x.translate(c.width/2,c.height/2); 
+              x.rotate(angle*Math.PI/180); 
+              x.drawImage(i,-i.width/2,-i.height/2); 
+              c.toBlob(b=>{loadFile1(b);showLoading(false);},'image/png'); 
+          }; 
+          i.src=u; 
+      },100); 
+  };
+
+  window.startCrop = () => { 
+      if(!fabCanvas)return; 
+      turnOffDrawing(); 
+      setActiveTool(event.currentTarget); 
+      const u=fabCanvas.toDataURL({format:'png',multiplier:1/currentScale}); 
+      el('fabricCanvas').parentElement.style.display='none'; 
+      const i=el('cropperImg'); 
+      i.onload=()=>{ 
+          el('mainToolbar').style.display='none'; 
+          el('editorTopBar').style.display='none'; 
+          el('cropControls').style.display='flex'; 
+          if(cropper)cropper.destroy(); 
+          cropper=new Cropper(i,{viewMode:1,autoCropArea:1,dragMode:'move',background:false}); 
+      }; 
+      i.src=u; 
+      i.style.display='block'; 
+  };
+  
+  window.applyCrop = () => { 
+      if(!cropper)return; 
+      cropper.getCroppedCanvas().toBlob(b=>{ 
+          cropper.destroy();cropper=null; 
+          el('cropperImg').style.display='none'; 
+          el('fabricCanvas').parentElement.style.display='block'; 
+          el('mainToolbar').style.display='block'; 
+          el('editorTopBar').style.display='flex'; 
+          el('cropControls').style.display='none'; 
+          loadFile1(b); 
+          setActiveTool(null); 
+      }); 
+  };
+  
+  window.cancelCrop = () => { 
+      if(cropper){cropper.destroy();cropper=null;} 
+      el('cropperImg').style.display='none'; 
+      el('fabricCanvas').parentElement.style.display='block'; 
+      el('mainToolbar').style.display='block'; 
+      el('editorTopBar').style.display='flex'; 
+      el('cropControls').style.display='none'; 
+      setActiveTool(null); 
+  };
+
+  function createBubblePath(w, h) { 
+      const r=10, tW=20; 
+      return `M ${r} 0 L ${w-r} 0 Q ${w} 0 ${w} ${r} L ${w} ${h-r} Q ${w} ${h} ${w-r} ${h} L ${w/2+tW/2} ${h} L ${w/2} ${h+20} L ${w/2-tW/2} ${h} L ${r} ${h} Q 0 ${h} 0 ${h-r} L 0 ${r} Q 0 0 ${r} 0 z`; 
   }
 
-  // Crop Tools
-  function rotateCrop(d) { if(cropper1) cropper1.rotate(d); }
+  // Shape With Text (Resizing)
+  window.addShapeWithText = (type) => {
+    if(!fabCanvas) return; turnOffDrawing(); setActiveTool(event.currentTarget);
+    const c = fabCanvas.getCenter();
+    const fill = el('checkFill').checked ? el('pickerFill').value : 'transparent';
+    const stroke = el('pickerStroke').value;
+    const fs = 24 * currentScale; 
+    const text = new fabric.IText('テキスト', { fontSize: fs, fill: stroke, originX: 'center', originY: 'center', fontFamily: '"Noto Sans JP", sans-serif' });
+    let shape; const padding = 20 * currentScale;
+    let w = text.width + padding*2; let h = text.height + padding*2;
 
-  // Decor Tools
-  function addShape(type) {
-    if(!fabricCanvas) return;
-    turnOffDrawing();
-    const c = fabricCanvas.getCenter();
-    let obj, fill = el('checkFill').checked ? el('pickerFill').value : 'transparent';
-    let stroke = el('pickerStroke').value;
-    let strokeW = parseInt(el('numSize').value) || 2;
-    
-    if(type === 'rect') {
-      obj = new fabric.Rect({ left:c.left, top:c.top, width:100, height:100, fill:fill, stroke:stroke, strokeWidth:strokeW });
-    } else if(type === 'circle') {
-      obj = new fabric.Circle({ left:c.left, top:c.top, radius:50, fill:fill, stroke:stroke, strokeWidth:strokeW });
-    } else if(type === 'roundRect') {
-      obj = new fabric.Rect({ left:c.left, top:c.top, width:100, height:100, rx:15, ry:15, fill:fill, stroke:stroke, strokeWidth:strokeW });
-    } else if(type === 'arrow') {
-      // Simple Block Arrow Path
-      const path = 'M 0 25 L 50 25 L 50 0 L 100 50 L 50 100 L 50 75 L 0 75 z';
-      obj = new fabric.Path(path, { left:c.left, top:c.top, fill:fill, stroke:stroke, strokeWidth:strokeW });
-    } else if(type === 'bubbleRect') {
-      // Rectangular Bubble
-      const path = 'M 0 0 L 120 0 L 120 80 L 80 80 L 60 110 L 40 80 L 0 80 z';
-      obj = new fabric.Path(path, { left:c.left, top:c.top, fill:fill, stroke:stroke, strokeWidth:strokeW });
-    } else if(type === 'bubbleRound') {
-      // Rounded Bubble (Approximation)
-      const path = 'M30,0 h100 a30,30 0 0 1 30,30 v40 a30,30 0 0 1 -30,30 h-40 l-20,30 l-20,-30 h-20 a30,30 0 0 1 -30,-30 v-40 a30,30 0 0 1 30,-30 z';
-      obj = new fabric.Path(path, { left:c.left, top:c.top, fill:fill, stroke:stroke, strokeWidth:strokeW });
-    }
-    
-    if(obj) { fabricCanvas.add(obj); fabricCanvas.setActiveObject(obj); }
-  }
+    if(type === 'roundRect') shape = new fabric.Rect({ width: w, height: h, rx: 10, ry: 10, fill: fill, stroke: stroke, strokeWidth: 2, originX: 'center', originY: 'center' });
+    else if (type === 'circle') shape = new fabric.Circle({ radius: Math.max(w, h)/1.5, fill: fill, stroke: stroke, strokeWidth: 2, originX: 'center', originY: 'center' });
+    else if (type === 'bubble') shape = new fabric.Path(createBubblePath(w,h), { fill: fill, stroke: stroke, strokeWidth: 2, originX: 'center', originY: 'center' });
 
-  function addText() {
-    if(!fabricCanvas) return;
-    turnOffDrawing();
-    const c = fabricCanvas.getCenter();
-    const txt = new fabric.IText('Text', {
-      left:c.left, top:c.top, fontFamily: 'sans-serif',
-      fill: el('pickerFill').value, fontSize: parseInt(el('numSize').value)*10 || 40
+    const group = new fabric.Group([shape, text], { left: c.left, top: c.top });
+    text.on('changed', () => {
+       const nw = text.width + padding*2; const nh = text.height + padding*2;
+       group.remove(shape);
+       if(type === 'circle') shape = new fabric.Circle({ radius: Math.max(nw, nh)/1.5, fill: fill, stroke: stroke, strokeWidth: 2, originX: 'center', originY: 'center' });
+       else if (type === 'bubble') shape = new fabric.Path(createBubblePath(nw,nh), { fill: fill, stroke: stroke, strokeWidth: 2, originX: 'center', originY: 'center' });
+       else shape = new fabric.Rect({ width: nw, height: nh, rx: 10, ry: 10, fill: fill, stroke: stroke, strokeWidth: 2, originX: 'center', originY: 'center' });
+       group.add(shape); group.sendToBack(shape); group.addWithUpdate(); fabCanvas.renderAll();
     });
-    fabricCanvas.add(txt); fabricCanvas.setActiveObject(txt);
-  }
+    fabCanvas.add(group); fabCanvas.setActiveObject(group); saveHistory();
+  };
 
-  function toggleMarker() {
-    if(!fabricCanvas) return;
-    if(fabricCanvas.isDrawingMode) { turnOffDrawing(); } 
-    else {
-      fabricCanvas.discardActiveObject(); fabricCanvas.requestRenderAll();
-      fabricCanvas.isDrawingMode = true;
-      const brush = new fabric.PencilBrush(fabricCanvas);
-      brush.color = el('pickerFill').value;
-      brush.width = (parseInt(el('numSize').value)||4) * 2;
-      fabricCanvas.freeDrawingBrush = brush;
-      el('btnMarker').classList.add('active');
+  window.addShape = (t) => { 
+      if(!fabCanvas)return; turnOffDrawing(); setActiveTool(event.currentTarget);
+      const c=fabCanvas.getCenter(), f=el('checkFill').checked?el('pickerFill').value:'transparent', s=el('pickerStroke').value, sw=(parseInt(el('numStrokeWidth').value)||2)*currentScale, z=100*currentScale; let o;
+      if(t==='roundRect') o=new fabric.Rect({left:c.left,top:c.top,width:z,height:z,rx:10,ry:10,fill:f,stroke:s,strokeWidth:sw});
+      else if(t==='rect') o=new fabric.Rect({left:c.left,top:c.top,width:z,height:z,fill:f,stroke:s,strokeWidth:sw});
+      else if(t==='circle') o=new fabric.Circle({left:c.left,top:c.top,radius:z/2,fill:f,stroke:s,strokeWidth:sw});
+      else if(t==='bubble') o=new fabric.Path(createBubblePath(z,z*0.8), {left:c.left,top:c.top,fill:f,stroke:s,strokeWidth:sw});
+      else if(t==='arrow') o=new fabric.Path('M 0 25 L 50 25 L 50 0 L 100 50 L 50 100 L 50 75 L 0 75 z',{left:c.left,top:c.top,fill:f,stroke:s,strokeWidth:sw,scaleX:currentScale*0.8,scaleY:currentScale*0.8});
+      if(o){fabCanvas.add(o);fabCanvas.setActiveObject(o);saveHistory();}
+  };
+
+  window.addText = () => { if(!fabCanvas)return; turnOffDrawing(); setActiveTool(event.currentTarget); const c=fabCanvas.getCenter(), t=new fabric.IText('テキスト',{left:c.left,top:c.top,fontFamily:'"Noto Sans JP", sans-serif',fill:el('pickerFill').value,fontSize:40*currentScale}); fabCanvas.add(t); fabCanvas.setActiveObject(t); };
+  window.toggleHighlighter = () => { if(!fabCanvas)return; fabCanvas.discardActiveObject(); fabCanvas.requestRenderAll(); fabCanvas.isDrawingMode=true; const b=new fabric.PencilBrush(fabCanvas); b.color="rgba(255,255,0,0.5)"; b.width=20*currentScale; fabCanvas.freeDrawingBrush=b; setActiveTool(el('btnHighlighter')); };
+  window.toggleMarker = () => { if(!fabCanvas)return; fabCanvas.discardActiveObject(); fabCanvas.requestRenderAll(); fabCanvas.isDrawingMode=true; const b=new fabric.PencilBrush(fabCanvas); b.color=el('pickerFill').value; b.width=(parseInt(el('numStrokeWidth').value)||4)*2*currentScale; fabCanvas.freeDrawingBrush=b; setActiveTool(el('btnMarker')); };
+  const turnOffDrawing = () => { if(fabCanvas){fabCanvas.isDrawingMode=false; setActiveTool(null);} };
+  window.deleteActive = () => { if(!fabCanvas)return; const a=fabCanvas.getActiveObjects(); if(a.length){fabCanvas.discardActiveObject(); a.forEach(o=>fabCanvas.remove(o)); saveHistory();} };
+
+  const updatePropsUI = () => { let o=fabCanvas.getActiveObject(); if(!o)return; 
+    if(o.type==='group'){
+        const items = o.getObjects();
+        const textObj = items.find(i => i.type === 'i-text');
+        if(textObj) {
+            el('textControls').classList.remove('d-none'); el('textControls').classList.add('d-flex');
+            el('textInput').value = textObj.text;
+            el('numFontSize').value = Math.round(textObj.fontSize / currentScale);
+            el('boxFontSize').style.display = 'flex';
+        }
+        o = items.find(i => i.type !== 'i-text') || items[0];
     }
-  }
-  function turnOffDrawing() { if(fabricCanvas) { fabricCanvas.isDrawingMode=false; el('btnMarker').classList.remove('active'); } }
-  function deleteActiveObject() { if(!fabricCanvas)return; const a=fabricCanvas.getActiveObjects(); if(a.length){ fabricCanvas.discardActiveObject(); a.forEach(o=>fabricCanvas.remove(o)); } }
+    if(o.fill&&o.fill!=='transparent'){el('checkFill').checked=true;el('pickerFill').value=o.fill;}else{el('checkFill').checked=false;} if(o.stroke)el('pickerStroke').value=o.stroke;
+    if(o.type==='i-text'){ el('textControls').classList.remove('d-none'); el('textControls').classList.add('d-flex'); el('boxStrokeWidth').style.display='none'; el('boxFontSize').style.display='flex'; el('propTarget').innerText="(文字)"; el('textInput').value=o.text; el('numFontSize').value=Math.round(o.fontSize/currentScale);
+    }else{ el('textControls').classList.remove('d-flex'); el('textControls').classList.add('d-none'); el('boxStrokeWidth').style.display='flex'; el('boxFontSize').style.display='none'; el('propTarget').innerText="(図形)"; el('numStrokeWidth').value=Math.round(o.strokeWidth/currentScale); }
+    saveSetting();
+  };
 
-  // Properties Logic
-  function updateToolsFromSelection() {
-    const obj = fabricCanvas.getActiveObject();
-    if(!obj) return;
-    
-    // Color
-    if(obj.fill && obj.fill !== 'transparent') {
-      el('checkFill').checked = true; el('pickerFill').value = obj.fill;
+  window.updateProp = k => { if(k==='fillColor'){el('checkFill').checked=true;k='fill';} const vf=el('checkFill').checked?el('pickerFill').value:'transparent', vs=el('pickerStroke').value;
+    saveSetting();
+    if(fabCanvas&&fabCanvas.isDrawingMode){ if(el('btnMarker').classList.contains('active')){ if(k==='fill'||k==='fillColor')fabCanvas.freeDrawingBrush.color=el('pickerFill').value; if(k==='strokeWidth')fabCanvas.freeDrawingBrush.width=(parseInt(el('numStrokeWidth').value)||4)*currentScale*2; } return; }
+    const a=fabCanvas?.getActiveObject(); if(!a)return;
+    if(a.type === 'group') {
+       const items = a.getObjects();
+       items.forEach(obj => {
+          if(obj.type === 'i-text') {
+             if(k==='text') { obj.set('text', el('textInput').value); a.addWithUpdate(); }
+             if(k==='fontSize') { obj.set('fontSize', parseInt(el('numFontSize').value) * currentScale); a.addWithUpdate(); }
+             if(k==='fill'||k==='fillColor') obj.set('fill', el('pickerFill').value); 
+             if(k==='text' || k==='fontSize') obj.fire('changed');
+          } else {
+             if(k==='fill'||k==='fillColor') obj.set('fill', vf); if(k==='stroke') obj.set('stroke', vs);
+          }
+       });
     } else {
-      el('checkFill').checked = false;
+       if(a.type==='i-text'){ if(k==='text')a.set('text',el('textInput').value); if(k==='fontSize')a.set('fontSize',parseInt(el('numFontSize').value)*currentScale); if(k==='fill'||k==='fillColor')a.set('fill',el('pickerFill').value);
+       }else{ if(k==='fill'||k==='fillColor')a.set('fill',vf); if(k==='stroke')a.set('stroke',vs); if(k==='strokeWidth')a.set('strokeWidth',parseInt(el('numStrokeWidth').value)*currentScale); }
     }
-    if(obj.stroke) el('pickerStroke').value = obj.stroke;
+    fabCanvas.requestRenderAll(); saveHistory();
+  };
+  window.setPreset = c => { el('pickerFill').value=c; el('checkFill').checked=true; updateProp('fill'); };
 
-    // Size (StrokeWidth or FontSize)
-    if(obj.type === 'i-text') el('numSize').value = Math.round(obj.fontSize / 10);
-    else el('numSize').value = obj.strokeWidth;
-  }
-
-  function updateProp(key) {
-    if(fabricCanvas.isDrawingMode) {
-       // Update brush settings immediately
-       if(key === 'fill') fabricCanvas.freeDrawingBrush.color = el('pickerFill').value;
-       if(key === 'size') fabricCanvas.freeDrawingBrush.width = (parseInt(el('numSize').value)||4) * 2;
-       return;
-    }
-
-    const obj = fabricCanvas.getActiveObject();
-    if(!obj) return; // No selection
-
-    const fillVal = el('checkFill').checked ? el('pickerFill').value : 'transparent';
-    const strokeVal = el('pickerStroke').value;
-    const sizeVal = parseInt(el('numSize').value) || 0;
-
-    if(key === 'fill') obj.set('fill', fillVal);
-    if(key === 'stroke') obj.set('stroke', strokeVal);
-    if(key === 'size') {
-      if(obj.type === 'i-text') obj.set('fontSize', sizeVal * 10);
-      else obj.set('strokeWidth', sizeVal);
-    }
-    fabricCanvas.requestRenderAll();
-  }
-
-  function setPresetColor(hex) {
-    // Determine target based on what seems logical or selection
-    // Here we update Fill color picker and trigger update
-    el('pickerFill').value = hex;
-    el('checkFill').checked = true;
-    updateProp('fill');
-    // Also update stroke if text? Optional.
-  }
-
-  // --- Save Image ---
-  async function saveImage() {
-    showLoading(true);
-    const format = el('fmt1').value; const ext = format==='image/jpeg'?'jpg':'png';
-    const maxKB = parseInt(el('maxSizeKB').value)||0;
-    try {
-      let blob;
-      if(currentMode==='crop' && cropper1) {
-         blob = await new Promise(r => cropper1.getCroppedCanvas({
-           width:parseInt(el('resizeW').value)||undefined, height:parseInt(el('resizeH').value)||undefined
-         }).toBlob(r, format, 0.92));
-      } else if(currentMode==='decor' && fabricCanvas) {
-         const dataURL = fabricCanvas.toDataURL({ format:format.split('/')[1], multiplier:1, quality:0.92 });
-         blob = await (await fetch(dataURL)).blob();
-      } else throw new Error("保存データなし");
-
-      if(maxKB > 0 && blob.size > maxKB*1024) {
-         // optimization logic (simplified for brevity)
-         const img = await createImageBitmap(blob);
-         const c = document.createElement('canvas'); c.width=img.width; c.height=img.height;
-         c.getContext('2d').drawImage(img,0,0);
-         let q=0.9, s=0.9;
-         while(q>0.1 && blob.size>maxKB*1024) { q-=0.1; blob = await new Promise(r=>c.toBlob(r,format,q)); }
-         while(blob.size>maxKB*1024 && s>0.1) {
-            const tc=document.createElement('canvas'); tc.width=c.width*s; tc.height=c.height*s;
-            tc.getContext('2d').drawImage(c,0,0,tc.width,tc.height);
-            blob = await new Promise(r=>tc.toBlob(r,format,0.7)); s-=0.1;
-         }
+  window.saveImage = async () => { if(!fabCanvas)return; showLoading(true); const fmt=el('fmt1').value, isPdf=(fmt==='application/pdf'), pFmt=isPdf?'image/png':fmt, maxKB=parseInt(el('maxSizeKB').value)||0;
+    try { const u=fabCanvas.toDataURL({format:pFmt.split('/')[1],multiplier:1/currentScale,quality:0.92}); let b=base64ToBlob(u,pFmt);
+      if(maxKB>0 && b.size>maxKB*1024){ const i=await createImageBitmap(b), c=document.createElement('canvas'); c.width=i.width; c.height=i.height; c.getContext('2d').drawImage(i,0,0); let q=0.9;
+        while(q>0.1 && b.size>maxKB*1024){ const su=c.toDataURL(pFmt,q); b=base64ToBlob(su,pFmt); q-=0.1; }
       }
-      downloadBlob(blob, `edited.${ext}`);
-    } catch(e){ alert(e); } finally { showLoading(false); }
-  }
+      if(isPdf){ const doc=await PDFLib.PDFDocument.create(), ib=await b.arrayBuffer(), im=await doc.embedPng(ib), p=doc.addPage([im.width,im.height]); p.drawImage(im,{x:0,y:0,width:im.width,height:im.height}); dlBlob(new Blob([await doc.save()],{type:'application/pdf'}),'edited.pdf'); }else{ dlBlob(b,`edited.${fmt==='image/jpeg'?'jpg':'png'}`); }
+      sendLog('SAVE','Image Saved'); showSuccess("保存しました");
+    }catch(e){alert('Err:'+e);showLoading(false);}
+  };
 
-  // --- Tab 2: Image -> PDF ---
-  const imgList2=[], grid2=el('grid2'); new Sortable(grid2,{animation:150,ghostClass:'bg-light'});
-  el('inputImg2').addEventListener('change',e=>addImgs2(e.target.files));
-  el('dz2').addEventListener('click',()=>el('inputImg2').click());
-  el('dz2').addEventListener('dragover',e=>{e.preventDefault();el('dz2').classList.add('dragover')});
-  el('dz2').addEventListener('dragleave',()=>el('dz2').classList.remove('dragover'));
-  el('dz2').addEventListener('drop',e=>{e.preventDefault();addImgs2(e.dataTransfer.files)});
-  function addImgs2(files){
-    if(files.length){el('toolbar2').style.display='flex';el('dz2').style.padding='1.5rem';el('dz2').querySelector('i').style.fontSize='1.5rem';}
-    Array.from(files).forEach(f=>{ if(!f.type.startsWith('image/'))return;
-      const id='i'+Math.random().toString(36).substr(2,9), url=URL.createObjectURL(f);
-      imgList2.push({id,f,url});
-      const d=document.createElement('div'); d.className='sortable-item'; d.dataset.id=id;
-      d.innerHTML=`<img src="${url}"><div class="item-actions"><span class="badge-page">IMG</span><div class="action-row"><button class="btn-icon delete" onclick="rmImg2('${id}')"><i class="bi bi-trash"></i></button></div></div>`;
+  // TAB 2: PDF
+  const pdfPages=[]; const grid2=el('grid2'); new Sortable(grid2,{animation:150,delay:250,touchStartThreshold:5,delayOnTouchOnly:true});
+  
+  // Cache for Undo
+  const pdfDataCache = new Map(); 
+  let pdfHistoryStack = [];
+  const savePdfHistory = () => {
+    const state = pdfPages.map(p => ({id:p.id, rot:p.rot}));
+    if(pdfHistoryStack.length > 10) pdfHistoryStack.shift();
+    pdfHistoryStack.push(JSON.stringify(state));
+  };
+  window.undoPdf = () => {
+    if(pdfHistoryStack.length <= 1) return;
+    pdfHistoryStack.pop(); 
+    const prevState = JSON.parse(pdfHistoryStack[pdfHistoryStack.length - 1]);
+    pdfPages.length = 0; grid2.innerHTML = '';
+    prevState.forEach(item => { const cached = pdfDataCache.get(item.id); if(cached) { cached.rot = item.rot; pdfPages.push(cached); renderPdfItem(cached); } });
+    updateSelCount();
+  };
+
+  // Cancel PDF Edit
+  window.cancelPdfEdit = () => {
+    editingPdfPageId = null;
+    el('tab2-btn').click();
+    el('btnReturnPdf').style.display = 'none';
+    el('btnCancelPdf').style.display = 'none';
+  };
+
+  const addPdf2 = async (fs) => { 
+    if(!fs.length) return; 
+    showLoading(true); 
+    el('toolbar2').style.display='block'; 
+    el('dz2').style.padding='2rem';
+    try { 
+      for(const f of fs){ 
+        if(f.type!=='application/pdf') continue; 
+        const buf=await f.arrayBuffer();
+        const doc=await pdfjsLib.getDocument(buf).promise;
+        for(let i=1; i<=doc.numPages; i++){ 
+          const id=Math.random().toString(36).substr(2);
+          const p=await doc.getPage(i);
+          const v=p.getViewport({scale:0.3});
+          const c=document.createElement('canvas'); 
+          c.width=v.width; c.height=v.height; 
+          await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;
+          const pageObj = {id,type:'original',buf,idx:i-1,rot:0,thumb:c};
+          pdfDataCache.set(id, pageObj); 
+          pdfPages.push(pageObj); 
+          renderPdfItem(pageObj);
+        }
+      } 
+      savePdfHistory(); 
+      sendLog('PDF','Added'); 
+    } catch(e){ alert(e); } 
+    finally { showLoading(false); el('inputPdf2').value=''; }
+  };
+
+  function renderPdfItem(p) {
+      const d=document.createElement('div'); d.className='sortable-item'; d.dataset.id=p.id;
+      d.onclick=e=>{ if(!e.target.closest('button')&&!e.target.closest('input')){ const k=d.querySelector('.check-select'); k.checked=!k.checked; updateSelCount(); if(k.checked)d.classList.add('selected');else d.classList.remove('selected'); }};
+      d.innerHTML=`<div class="item-overlay"><div class="item-header"><span class="badge-page">P.${p.idx+1}</span><input type="checkbox" class="check-select" onclick="event.stopPropagation();this.closest('.sortable-item').classList.toggle('selected',this.checked);updateSelCount();"></div><div class="item-actions"><a class="btn-mini edit" onclick="editPdfPage('${p.id}')"><i class="bi bi-pencil-fill"></i> 編集</a><a class="btn-mini del" onclick="delPage('${p.id}')"><i class="bi bi-trash"></i> 削除</a></div></div><div class="canvas-holder"></div>`;
+      if(p.thumb) d.querySelector('.canvas-holder').appendChild(p.thumb);
+      if(p.rot!==0) d.querySelector('.canvas-holder').firstElementChild.style.transform=`rotate(${p.rot}deg)`;
       grid2.appendChild(d);
-    }); el('inputImg2').value='';
   }
-  window.rmImg2=id=>{ const i=imgList2.findIndex(x=>x.id===id); if(i>-1)imgList2.splice(i,1); grid2.querySelector(`[data-id="${id}"]`)?.remove(); if(!imgList2.length)el('toolbar2').style.display='none'; };
-  async function generatePdfFromImages(){
-    if(!imgList2.length)return alert('No images'); showLoading(true);
+
+  function updateSelCount(){ el('selCount').innerText=`${document.querySelectorAll('.check-select:checked').length} ページ選択`; }
+  function toggleAllPdf(c){ document.querySelectorAll('.check-select').forEach(k=>{k.checked=c;k.closest('.sortable-item').classList.toggle('selected',c)}); updateSelCount(); }
+
+  window.editPdfPage = async (id) => { 
+    const o=pdfPages.find(x=>x.id===id); if(!o)return; 
+    showLoading(true);
+    try{ 
+      let b; 
+      if(o.type==='original'){ 
+        const d=await pdfjsLib.getDocument(o.buf).promise;
+        const p=await d.getPage(o.idx+1);
+        const v=p.getViewport({scale:2.0,rotation:o.rot});
+        const c=document.createElement('canvas'); 
+        c.width=v.width; c.height=v.height; 
+        await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise; 
+        b=await new Promise(r=>c.toBlob(r,'image/png')); 
+      } else { b=o.blob; }
+      editingPdfPageId=id; 
+      loadFile1(b); 
+      el('tab1-btn').click(); 
+    } catch(e){ alert(e); } 
+    finally { showLoading(false); }
+  };
+
+// ▼▼▼ 修正後の updatePdfPage 関数 ▼▼▼
+  window.updatePdfPage = async () => { 
+    // 1. まず現在のIDをローカル変数に確保する（これが消えると更新先がわからなくなるため）
+    const targetId = editingPdfPageId;
+
+    if(!fabCanvas || !targetId) return; 
+    
+    showLoading(true, "PDFを更新中...");
+    
+    try { 
+      // 画像データの生成
+      const u = fabCanvas.toDataURL({format:'png', multiplier:1/currentScale, quality:0.92});
+      const b = base64ToBlob(u, 'image/png');
+      
+      // Blob URLを生成 (メモリ上で即座にアクセス可能なURL)
+      const thumbUrl = URL.createObjectURL(b);
+
+      // データ配列の更新
+      const idx = pdfPages.findIndex(x => x.id === targetId);
+      if(idx > -1){ 
+          // 新しい画像オブジェクトを作成
+          const i = new Image();
+          i.style.maxWidth = '100%';
+          i.style.maxHeight = '100%';
+          i.src = thumbUrl; // Blob URLをセット
+
+          // DOMの更新：onloadを待たずに即座に要素を入れ替える
+          // (Blob URLは即時表示可能なため、待つ必要がない＆待つと変数が消えるリスクがある)
+          const card = grid2.querySelector(`[data-id="${targetId}"]`);
+          if(card) {
+              const holder = card.querySelector('.canvas-holder');
+              if(holder) {
+                  holder.innerHTML = ''; // 古い画像を消去
+                  holder.appendChild(i); // 新しい画像を追加
+              }
+          }
+
+          // 内部データの更新
+          const newObj = {id: targetId, type: 'edited', blob: b, rot: 0, thumb: i, buf: null, idx: 0};
+          pdfPages[idx] = newObj; 
+          pdfDataCache.set(targetId, newObj);
+      }
+      
+      savePdfHistory(); 
+      
+      // タブを切り替え
+      el('tab2-btn').click(); 
+      
+      // 終了処理
+      editingPdfPageId = null; 
+      el('btnReturnPdf').style.display = 'none'; 
+      sendLog('PDF', 'Updated');
+      
+    } catch(e) { 
+      console.error(e);
+      alert('更新エラー: ' + e); 
+    } finally { 
+      showLoading(false); 
+    }
+  };
+  // ▲▲▲ 修正ここまで ▲▲▲
+
+  window.delPage = id => { const i=pdfPages.findIndex(x=>x.id===id); if(i>-1)pdfPages.splice(i,1); grid2.querySelector(`[data-id="${id}"]`)?.remove(); updateSelCount(); savePdfHistory(); };
+  function getTargets(s){ if(s==='all')return Array.from(grid2.children).map(e=>e.dataset.id); const l=Array.from(document.querySelectorAll('.check-select:checked')).map(e=>e.closest('.sortable-item').dataset.id); return l.length?l:[]; }
+  
+  window.saveSelected=(m)=>handleSave(getTargets('selected'),m); window.saveAll=(m)=>handleSave(getTargets('all'),m);
+  window.deleteSelected=()=>{ const ids=getTargets('selected'); if(!ids.length)return; if(!confirm(`${ids.length} ページ削除?`))return; ids.forEach(id=>{delPage(id)}); };
+
+  async function handleSave(ids, m){ if(!ids.length)return alert('未選択'); showLoading(true);
     try{
-      const pdf=await PDFLib.PDFDocument.create(), items=Array.from(grid2.children);
-      for(const item of items){
-        const obj=imgList2.find(x=>x.id===item.dataset.id); if(!obj)continue;
-        const buf=await obj.f.arrayBuffer();
-        let img = obj.f.type==='image/jpeg' ? await pdf.embedJpg(buf) : await pdf.embedPng(buf);
-        pdf.addPage([img.width,img.height]).drawImage(img,{x:0,y:0,width:img.width,height:img.height});
-      }
-      downloadBlob(new Blob([await pdf.save()],{type:'application/pdf'}),'images.pdf');
-    }catch(e){alert(e)}finally{showLoading(false)}
+      if(m==='individual'){ if(ids.length>10&&!confirm('多数のファイルをダウンロードしますか?')) {showLoading(false);return;} for(let i=0;i<ids.length;i++){ const b=await getPageBlob(ids[i],'image/png'); dlBlob(b,`page_${i+1}.png`); await new Promise(r=>setTimeout(r,200)); } }
+      else if(m==='zip'){ const z=new JSZip(); for(let i=0;i<ids.length;i++){ const b=await getPageBlob(ids[i],'image/jpeg'); z.file(`page_${i+1}.jpg`,b); } dlBlob(await z.generateAsync({type:"blob"}),"pages.zip"); }
+      else if(m==='pdf_split'){ const z=new JSZip(); for(let i=0;i<ids.length;i++){ 
+          const doc=await PDFLib.PDFDocument.create(), o=pdfPages.find(x=>x.id===ids[i]);
+          if(o.type==='original'){ const s=await PDFLib.PDFDocument.load(o.buf), [p]=await doc.copyPages(s,[o.idx]); p.setRotation(PDFLib.degrees(p.getRotation().angle+o.rot)); doc.addPage(p); }
+          else{ const ib=await o.blob.arrayBuffer(), im=await doc.embedPng(ib), p=doc.addPage([im.width,im.height]); p.drawImage(im,{x:0,y:0,width:im.width,height:im.height}); p.setRotation(PDFLib.degrees(o.rot)); }
+          z.file(`file_${i+1}.pdf`, await doc.save());
+      } dlBlob(await z.generateAsync({type:"blob"}),"pdfs.zip"); }
+      else if(m==='pdf'){ const doc=await PDFLib.PDFDocument.create(), cache=new Map(); for(const id of ids){ const d=pdfPages.find(x=>x.id===id); if(d.type==='original'){ let s=cache.get(d.buf); if(!s){s=await PDFLib.PDFDocument.load(d.buf);cache.set(d.buf,s);} const [p]=await doc.copyPages(s,[d.idx]); p.setRotation(PDFLib.degrees(p.getRotation().angle+d.rot)); doc.addPage(p); }else{ const i=await doc.embedPng(await d.blob.arrayBuffer()), p=doc.addPage([i.width,i.height]); p.drawImage(i,{x:0,y:0,width:i.width,height:i.height}); p.setRotation(PDFLib.degrees(d.rot)); } } dlBlob(new Blob([await doc.save()],{type:'application/pdf'}),'merged.pdf'); }
+      sendLog('PDF',`Saved ${m}`); showSuccess("保存しました");
+    }catch(e){alert(e);showLoading(false);}
   }
 
-  // --- Tab 3: PDF -> Image ---
-  let pdf3=null, page3=1; const cvs3=el('pdfCanvas3'), ctx3=cvs3.getContext('2d');
-  el('inputPdf3').addEventListener('change',e=>loadPdf3(e.target.files[0]));
-  el('dz3').addEventListener('click',()=>el('inputPdf3').click());
-  el('dz3').addEventListener('dragover',e=>{e.preventDefault();el('dz3').classList.add('dragover')});
-  el('dz3').addEventListener('drop',e=>{e.preventDefault();loadPdf3(e.dataTransfer.files[0])});
-  async function loadPdf3(f){
-    if(!f)return; showLoading(true);
-    try{ pdf3=await pdfjsLib.getDocument(await f.arrayBuffer()).promise; page3=1; el('dz3').style.display='none'; el('viewerArea3').style.display='block'; render3(); }
-    catch(e){alert('Error')}finally{showLoading(false)}
-  }
-  async function render3(){ if(!pdf3)return; const p=await pdf3.getPage(page3), v=p.getViewport({scale:1.5}); cvs3.width=v.width; cvs3.height=v.height; await p.render({canvasContext:ctx3,viewport:v}).promise; el('pageIndicator').innerText=`${page3}/${pdf3.numPages}`; }
-  function changePage(d){ if(pdf3 && page3+d>0 && page3+d<=pdf3.numPages){ page3+=d; render3(); } }
-  function saveCurrentPageImage(){ if(pdf3) cvs3.toBlob(b=>downloadBlob(b,`p${page3}.${el('fmt3').value==='image/jpeg'?'jpg':'png'}`), el('fmt3').value); }
-  async function saveAllPagesZip(){
-    if(!pdf3)return; showLoading(true); const z=new JSZip(), fmt=el('fmt3').value, ext=fmt==='image/jpeg'?'jpg':'png';
-    try{ for(let i=1;i<=pdf3.numPages;i++){
-      const p=await pdf3.getPage(i), v=p.getViewport({scale:2}), c=document.createElement('canvas'); c.width=v.width; c.height=v.height;
-      await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;
-      z.file(`p${i}.${ext}`, await new Promise(r=>c.toBlob(r,fmt,0.85)));
-    } downloadBlob(await z.generateAsync({type:'blob'}),'pages.zip'); }catch(e){alert(e)}finally{showLoading(false)}
-  }
-  function closeViewer3(){ pdf3=null; el('viewerArea3').style.display='none'; el('dz3').style.display='block'; el('inputPdf3').value=''; }
-
-  // --- Tab 4: PDF Edit ---
-  const pdfList4=[], grid4=el('grid4'); new Sortable(grid4,{animation:150,ghostClass:'bg-light'});
-  el('inputPdf4').addEventListener('change',e=>addPdf4(e.target.files));
-  el('dz4').addEventListener('click',()=>el('inputPdf4').click());
-  el('dz4').addEventListener('dragover',e=>{e.preventDefault();el('dz4').classList.add('dragover')});
-  el('dz4').addEventListener('drop',e=>{e.preventDefault();addPdf4(e.dataTransfer.files)});
-  async function addPdf4(files){
-    if(!files.length)return; showLoading(true); el('toolbar4').style.display='flex'; el('dz4').style.padding='1.5rem';el('dz4').querySelector('i').style.fontSize='1.5rem';
-    try{ for(const f of files){ if(f.type!=='application/pdf')continue;
-      const buf=await f.arrayBuffer(), doc=await pdfjsLib.getDocument(buf).promise;
-      for(let i=1;i<=doc.numPages;i++){
-        const id=Math.random().toString(36).substr(2,9); pdfList4.push({id,buf,idx:i-1,rot:0});
-        const p=await doc.getPage(i), v=p.getViewport({scale:0.3}), c=document.createElement('canvas'); c.width=v.width;c.height=v.height;
-        await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;
-        const d=document.createElement('div'); d.className='sortable-item'; d.dataset.id=id;
-        d.innerHTML=`<div class="holder w-100 h-100 d-flex justify-content-center align-items-center bg-light"></div><div class="item-actions"><span class="badge-page">P.${i}</span><div class="action-row"><button class="btn-icon" onclick="rot4('${id}')"><i class="bi bi-arrow-clockwise"></i></button><button class="btn-icon delete" onclick="rm4('${id}')"><i class="bi bi-trash"></i></button></div></div>`;
-        d.querySelector('.holder').appendChild(c); grid4.appendChild(d);
-      }
-    }}catch(e){alert(e)}finally{showLoading(false);el('inputPdf4').value='';}
-  }
-  window.rm4=id=>{ const i=pdfList4.findIndex(x=>x.id===id); if(i>-1)pdfList4.splice(i,1); grid4.querySelector(`[data-id="${id}"]`)?.remove(); if(!pdfList4.length)el('toolbar4').style.display='none'; };
-  window.rot4=id=>{ const o=pdfList4.find(x=>x.id===id); if(!o)return; o.rot=(o.rot+90)%360; const c=grid4.querySelector(`[data-id="${id}"] canvas`); if(c){ c.style.transform=`rotate(${o.rot}deg)`; if(o.rot%180!==0){const s=Math.min(c.parentElement.offsetWidth/c.height,c.parentElement.offsetHeight/c.width);c.style.transform+=` scale(${s})`;} } };
-  async function mergeAndSavePdf(){
-    if(!grid4.children.length)return alert('No pages'); showLoading(true);
-    try{ const pdf=await PDFLib.PDFDocument.create(), items=Array.from(grid4.children), cache=new Map();
-      for(const item of items){
-        const d=pdfList4.find(x=>x.id===item.dataset.id); if(!d)continue;
-        let s=cache.get(d.buf); if(!s){s=await PDFLib.PDFDocument.load(d.buf); cache.set(d.buf,s);}
-        const [p]=await pdf.copyPages(s,[d.idx]); p.setRotation(PDFLib.degrees(p.getRotation().angle+d.rot)); pdf.addPage(p);
-      } downloadBlob(new Blob([await pdf.save()],{type:'application/pdf'}),'merged.pdf');
-    }catch(e){alert(e)}finally{showLoading(false)}
+  async function getPageBlob(id, t){ const o=pdfPages.find(x=>x.id===id);
+    if(o.type==='original'){ const d=await pdfjsLib.getDocument(o.buf).promise, p=await d.getPage(o.idx+1), v=p.getViewport({scale:2.0,rotation:o.rot}), c=document.createElement('canvas'); c.width=v.width;c.height=v.height; await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise; return await new Promise(r=>c.toBlob(r,t,0.9)); }
+    else{ if(t==='image/jpeg'){ const i=await createImageBitmap(o.blob), c=document.createElement('canvas'); c.width=i.width;c.height=i.height; c.getContext('2d').drawImage(i,0,0); return await new Promise(r=>c.toBlob(r,t,0.9)); } return o.blob; }
   }
 </script>
 </body>
