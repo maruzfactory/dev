@@ -1,0 +1,77 @@
+function doGet() {
+  return HtmlService.createTemplateFromFile('index')
+    .evaluate()
+    .setTitle('GAS 画像・PDF変換ツール')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/**
+ * Base64データを受け取り、画像ファイルとしてGoogleドライブに保存する
+ */
+function saveImageToDrive(base64Data, fileName) {
+  try {
+    // Base64ヘッダー除去 (data:image/png;base64,.....)
+    var contentType = base64Data.split(',')[0].split(':')[1].split(';')[0];
+    var decoded = Utilities.base64Decode(base64Data.split(',')[1]);
+    var blob = Utilities.newBlob(decoded, contentType, fileName);
+    
+    // 保存先フォルダIDを指定（空欄の場合はルートに保存）
+    var folderId = ''; 
+    var folder = folderId ? DriveApp.getFolderById(folderId) : DriveApp.getRootFolder();
+    
+    var file = folder.createFile(blob);
+    return { success: true, url: file.getUrl(), name: file.getName() };
+    
+  } catch (e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+/**
+ * 画像Base64を受け取り、PDFとしてGoogleドライブに保存する
+ */
+function convertImageToPdfAndSave(base64Data, fileName) {
+  try {
+    var contentType = base64Data.split(',')[0].split(':')[1].split(';')[0];
+    var decoded = Utilities.base64Decode(base64Data.split(',')[1]);
+    var imageBlob = Utilities.newBlob(decoded, contentType, fileName);
+    
+    // 1. 一時的なGoogleドキュメントを作成
+    var tempDoc = DocumentApp.create('Temp_PDF_Conversion_' + new Date().getTime());
+    var body = tempDoc.getBody();
+    
+    // ページ余白を0にする（画像を大きく表示するため）
+    body.setMarginTop(0).setMarginBottom(0).setMarginLeft(0).setMarginRight(0);
+    
+    // 画像を挿入
+    var insertedImage = body.insertImage(0, imageBlob);
+    
+    // 画像サイズがページからはみ出る場合の調整（A4サイズ基準: 595 x 842 pt）
+    var pageWidth = 595;
+    if (insertedImage.getWidth() > pageWidth) {
+      var ratio = pageWidth / insertedImage.getWidth();
+      insertedImage.setWidth(pageWidth);
+      insertedImage.setHeight(insertedImage.getHeight() * ratio);
+    }
+    
+    tempDoc.saveAndClose();
+    
+    // 2. ドキュメントをPDFとして取得
+    var docFile = DriveApp.getFileById(tempDoc.getId());
+    var pdfBlob = docFile.getAs(MimeType.PDF);
+    pdfBlob.setName(fileName.split('.')[0] + '.pdf');
+    
+    // 保存
+    var folderId = ''; // 必要に応じて指定
+    var folder = folderId ? DriveApp.getFolderById(folderId) : DriveApp.getRootFolder();
+    var savedFile = folder.createFile(pdfBlob);
+    
+    // 3. 一時ファイルを削除
+    docFile.setTrashed(true);
+    
+    return { success: true, url: savedFile.getUrl(), name: savedFile.getName() };
+    
+  } catch (e) {
+    return { success: false, error: e.toString() };
+  }
+}
